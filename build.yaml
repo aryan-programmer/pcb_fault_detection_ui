@@ -1,0 +1,21 @@
+targets:
+  $default:
+    builders:
+      freezed:freezed:
+        generate_for:
+          include:
+            - lib/src/models/**.dart
+            - lib/src/data/**.dart
+            - lib/src/rust/**.dart
+
+      json_serializable:
+        generate_for:
+          include:
+            - lib/src/models/**.dart
+            - lib/src/data/**.dart
+            - lib/src/rust/**.dart
+
+      mobx_codegen:mobx_generator:
+        generate_for:
+          include:
+            - lib/src/store/**.store.dart
