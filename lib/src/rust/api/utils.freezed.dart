@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BoundingBox {
 
- int get x1; int get y1; int get x2; int get y2;
+ double get x1; double get y1; double get x2; double get y2;
 /// Create a copy of BoundingBox
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $BoundingBoxCopyWith<$Res>  {
   factory $BoundingBoxCopyWith(BoundingBox value, $Res Function(BoundingBox) _then) = _$BoundingBoxCopyWithImpl;
 @useResult
 $Res call({
- int x1, int y1, int x2, int y2
+ double x1, double y1, double x2, double y2
 });
 
 
@@ -69,10 +69,10 @@ class _$BoundingBoxCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? x1 = null,Object? y1 = null,Object? x2 = null,Object? y2 = null,}) {
   return _then(_self.copyWith(
 x1: null == x1 ? _self.x1 : x1 // ignore: cast_nullable_to_non_nullable
-as int,y1: null == y1 ? _self.y1 : y1 // ignore: cast_nullable_to_non_nullable
-as int,x2: null == x2 ? _self.x2 : x2 // ignore: cast_nullable_to_non_nullable
-as int,y2: null == y2 ? _self.y2 : y2 // ignore: cast_nullable_to_non_nullable
-as int,
+as double,y1: null == y1 ? _self.y1 : y1 // ignore: cast_nullable_to_non_nullable
+as double,x2: null == x2 ? _self.x2 : x2 // ignore: cast_nullable_to_non_nullable
+as double,y2: null == y2 ? _self.y2 : y2 // ignore: cast_nullable_to_non_nullable
+as double,
   ));
 }
 
@@ -86,10 +86,10 @@ class _BoundingBox extends BoundingBox {
   const _BoundingBox({required this.x1, required this.y1, required this.x2, required this.y2}): super._();
   factory _BoundingBox.fromJson(Map<String, dynamic> json) => _$BoundingBoxFromJson(json);
 
-@override final  int x1;
-@override final  int y1;
-@override final  int x2;
-@override final  int y2;
+@override final  double x1;
+@override final  double y1;
+@override final  double x2;
+@override final  double y2;
 
 /// Create a copy of BoundingBox
 /// with the given fields replaced by the non-null parameter values.
@@ -124,7 +124,7 @@ abstract mixin class _$BoundingBoxCopyWith<$Res> implements $BoundingBoxCopyWith
   factory _$BoundingBoxCopyWith(_BoundingBox value, $Res Function(_BoundingBox) _then) = __$BoundingBoxCopyWithImpl;
 @override @useResult
 $Res call({
- int x1, int y1, int x2, int y2
+ double x1, double y1, double x2, double y2
 });
 
 
@@ -144,10 +144,10 @@ class __$BoundingBoxCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? x1 = null,Object? y1 = null,Object? x2 = null,Object? y2 = null,}) {
   return _then(_BoundingBox(
 x1: null == x1 ? _self.x1 : x1 // ignore: cast_nullable_to_non_nullable
-as int,y1: null == y1 ? _self.y1 : y1 // ignore: cast_nullable_to_non_nullable
-as int,x2: null == x2 ? _self.x2 : x2 // ignore: cast_nullable_to_non_nullable
-as int,y2: null == y2 ? _self.y2 : y2 // ignore: cast_nullable_to_non_nullable
-as int,
+as double,y1: null == y1 ? _self.y1 : y1 // ignore: cast_nullable_to_non_nullable
+as double,x2: null == x2 ? _self.x2 : x2 // ignore: cast_nullable_to_non_nullable
+as double,y2: null == y2 ? _self.y2 : y2 // ignore: cast_nullable_to_non_nullable
+as double,
   ));
 }
 

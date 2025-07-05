@@ -15,7 +15,7 @@ _ImageData _$ImageDataFromJson(Map<String, dynamic> json) => _ImageData(
           .toList() ??
       const [],
   benchmarkOverlapThreshold:
-      (json['benchmarkOverlapThreshold'] as num?)?.toDouble() ?? 0.4,
+      (json['benchmarkOverlapThreshold'] as num?)?.toDouble() ?? 0.1,
   trackDefects:
       (json['trackDefects'] as List<dynamic>?)
           ?.map((e) => YoloEntityOutput.fromJson(e as Map<String, dynamic>))

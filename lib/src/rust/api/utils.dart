@@ -9,24 +9,24 @@ import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'utils.freezed.dart';
 part 'utils.g.dart';
 
-// These functions are ignored because they are not marked as `pub`: `new_with_log`, `new`, `non_maximum_suppression_with_sorted_boxes`, `non_maximum_suppression`, `sort_predictions`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `DropTimer`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `drop`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `height`, `new_with_log`, `new`, `new`, `non_maximum_suppression_with_sorted_boxes`, `non_maximum_suppression`, `sort_predictions`, `width`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `DropTimer`, `SliceBoundingBox`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `drop`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `non_maximum_suppression_collect`, `non_maximum_suppression_collect`
 
 @freezed
 sealed class BoundingBox with _$BoundingBox {
   const BoundingBox._();
   const factory BoundingBox.raw({
-    required int x1,
-    required int y1,
-    required int x2,
-    required int y2,
+    required double x1,
+    required double y1,
+    required double x2,
+    required double y2,
   }) = _BoundingBox;
   double area() =>
       RustLib.instance.api.crateApiUtilsBoundingBoxArea(that: this);
 
-  int height() =>
+  double height() =>
       RustLib.instance.api.crateApiUtilsBoundingBoxHeight(that: this);
 
   double intersection({required BoundingBox box2}) => RustLib.instance.api
@@ -49,10 +49,10 @@ sealed class BoundingBox with _$BoundingBox {
       );
 
   factory BoundingBox({
-    required int x1,
-    required int y1,
-    required int x2,
-    required int y2,
+    required double x1,
+    required double y1,
+    required double x2,
+    required double y2,
   }) => RustLib.instance.api.crateApiUtilsBoundingBoxNew(
     x1: x1,
     y1: y1,
@@ -63,7 +63,8 @@ sealed class BoundingBox with _$BoundingBox {
   double union({required BoundingBox box2}) => RustLib.instance.api
       .crateApiUtilsBoundingBoxUnion(that: this, box2: box2);
 
-  int width() => RustLib.instance.api.crateApiUtilsBoundingBoxWidth(that: this);
+  double width() =>
+      RustLib.instance.api.crateApiUtilsBoundingBoxWidth(that: this);
 
   factory BoundingBox.fromJson(Map<String, dynamic> json) =>
       _$BoundingBoxFromJson(json);

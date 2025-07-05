@@ -135,7 +135,7 @@ abstract class RustLibApi extends BaseApi {
 
   double crateApiUtilsBoundingBoxArea({required BoundingBox that});
 
-  int crateApiUtilsBoundingBoxHeight({required BoundingBox that});
+  double crateApiUtilsBoundingBoxHeight({required BoundingBox that});
 
   double crateApiUtilsBoundingBoxIntersection({
     required BoundingBox that,
@@ -161,10 +161,10 @@ abstract class RustLibApi extends BaseApi {
   });
 
   BoundingBox crateApiUtilsBoundingBoxNew({
-    required int x1,
-    required int y1,
-    required int x2,
-    required int y2,
+    required double x1,
+    required double y1,
+    required double x2,
+    required double y2,
   });
 
   double crateApiUtilsBoundingBoxUnion({
@@ -172,7 +172,7 @@ abstract class RustLibApi extends BaseApi {
     required BoundingBox box2,
   });
 
-  int crateApiUtilsBoundingBoxWidth({required BoundingBox that});
+  double crateApiUtilsBoundingBoxWidth({required BoundingBox that});
 
   Future<void> crateApiMainInitApp();
 
@@ -643,7 +643,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "bounding_box_area", argNames: ["that"]);
 
   @override
-  int crateApiUtilsBoundingBoxHeight({required BoundingBox that}) {
+  double crateApiUtilsBoundingBoxHeight({required BoundingBox that}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
@@ -652,7 +652,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 13)!;
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_u_32,
+          decodeSuccessData: sse_decode_f_32,
           decodeErrorData: null,
         ),
         constMeta: kCrateApiUtilsBoundingBoxHeightConstMeta,
@@ -815,19 +815,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   BoundingBox crateApiUtilsBoundingBoxNew({
-    required int x1,
-    required int y1,
-    required int x2,
-    required int y2,
+    required double x1,
+    required double y1,
+    required double x2,
+    required double y2,
   }) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_u_32(x1, serializer);
-          sse_encode_u_32(y1, serializer);
-          sse_encode_u_32(x2, serializer);
-          sse_encode_u_32(y2, serializer);
+          sse_encode_f_32(x1, serializer);
+          sse_encode_f_32(y1, serializer);
+          sse_encode_f_32(x2, serializer);
+          sse_encode_f_32(y2, serializer);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19)!;
         },
         codec: SseCodec(
@@ -878,7 +878,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  int crateApiUtilsBoundingBoxWidth({required BoundingBox that}) {
+  double crateApiUtilsBoundingBoxWidth({required BoundingBox that}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
@@ -887,7 +887,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21)!;
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_u_32,
+          decodeSuccessData: sse_decode_f_32,
           decodeErrorData: null,
         ),
         constMeta: kCrateApiUtilsBoundingBoxWidthConstMeta,
@@ -1025,10 +1025,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     if (arr.length != 4)
       throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
     return BoundingBox.raw(
-      x1: dco_decode_u_32(arr[0]),
-      y1: dco_decode_u_32(arr[1]),
-      x2: dco_decode_u_32(arr[2]),
-      y2: dco_decode_u_32(arr[3]),
+      x1: dco_decode_f_32(arr[0]),
+      y1: dco_decode_f_32(arr[1]),
+      x2: dco_decode_f_32(arr[2]),
+      y2: dco_decode_f_32(arr[3]),
     );
   }
 
@@ -1240,10 +1240,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   BoundingBox sse_decode_bounding_box(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_x1 = sse_decode_u_32(deserializer);
-    var var_y1 = sse_decode_u_32(deserializer);
-    var var_x2 = sse_decode_u_32(deserializer);
-    var var_y2 = sse_decode_u_32(deserializer);
+    var var_x1 = sse_decode_f_32(deserializer);
+    var var_y1 = sse_decode_f_32(deserializer);
+    var var_x2 = sse_decode_f_32(deserializer);
+    var var_y2 = sse_decode_f_32(deserializer);
     return BoundingBox.raw(x1: var_x1, y1: var_y1, x2: var_x2, y2: var_y2);
   }
 
@@ -1481,10 +1481,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_encode_bounding_box(BoundingBox self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_u_32(self.x1, serializer);
-    sse_encode_u_32(self.y1, serializer);
-    sse_encode_u_32(self.x2, serializer);
-    sse_encode_u_32(self.y2, serializer);
+    sse_encode_f_32(self.x1, serializer);
+    sse_encode_f_32(self.y1, serializer);
+    sse_encode_f_32(self.x2, serializer);
+    sse_encode_f_32(self.y2, serializer);
   }
 
   @protected

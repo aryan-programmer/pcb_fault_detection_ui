@@ -24,7 +24,7 @@ use crate::api::{
 	slicing::{get_slice_bboxes, SliceData, SliceInputParams},
 	utils::{
 		error, info, non_maximum_suppression, BoundingBox, DropTimer, MatchMetric,
-		NonMaxSuppressionIteratorAdapterExtension, VecU8Wrapper, YoloEntityOutput,
+		NonMaxSuppressionIteratorAdapterExtension, SliceBoundingBox, VecU8Wrapper, YoloEntityOutput,
 		YOLO_INPUT_IMAGE_HEIGHT, YOLO_INPUT_IMAGE_WIDTH,
 	},
 };
@@ -179,12 +179,12 @@ impl YoloModelSession {
 							// let id = slice_to_tensor_number.fetch_add(1, Ordering::Relaxed);
 							// let _t = DropTimer::new_with_log(format!("Image Slice to Array: {id}").into());
 
-							let BoundingBox { x1, x2, y1, y2 } = scaled_slice_bbox;
+							let SliceBoundingBox { x1, x2, y1, y2 } = scaled_slice_bbox;
 							let original_slice_bbox = BoundingBox {
-								x1: x1 * slice_width / 640,
-								y1: y1 * slice_height / 640,
-								x2: x2 * slice_width / 640,
-								y2: y2 * slice_height / 640,
+								x1: x1 as f32 / scaled_width as f32,
+								y1: y1 as f32 / scaled_height as f32,
+								x2: x2 as f32 / scaled_width as f32,
+								y2: y2 as f32 / scaled_height as f32,
 							};
 
 							let flat_samples_u8 = scaled_image.as_flat_samples_u8().unwrap();
@@ -200,7 +200,10 @@ impl YoloModelSession {
 
 							SliceData {
 								tensor,
-								original_bbox: original_slice_bbox,
+								// orig_slice_bbox: scaled_slice_bbox,
+								rel_bbox: original_slice_bbox,
+								scaled_width,
+								scaled_height,
 								// id,
 							}
 						})
@@ -228,85 +231,107 @@ impl YoloModelSession {
 
 						SliceData {
 							tensor,
-							original_bbox: BoundingBox {
-								x1: 0,
-								y1: 0,
-								x2: image_width,
-								y2: image_height,
+							rel_bbox: BoundingBox {
+								x1: 0.0,
+								y1: 0.0,
+								x2: 1.0,
+								y2: 1.0,
 							},
+							// orig_slice_bbox: SliceBoundingBox {
+							// 	x1: 0,
+							// 	y1: 0,
+							// 	x2: 0,
+							// 	y2: 0,
+							// },
+							scaled_width: YOLO_INPUT_IMAGE_WIDTH,
+							scaled_height: YOLO_INPUT_IMAGE_HEIGHT,
 							// id,
 						}
 					}),
 			)
-			.map_with(
-				self.session.clone(),
-				|arc_session,
-				 SliceData {
-				   tensor,
-				   original_bbox,
-				   //  id,
-				 }| {
-					// let _t = DropTimer::new(format!("Full inference for slice: {id}").into());
+			.map_with(self.session.clone(), |arc_session, slice_data| {
+				// info!("{slice_data:?}");
+				let SliceData {
+					tensor,
+					rel_bbox,
+					scaled_width,
+					scaled_height, //  id,
+					// orig_slice_bbox,
+				} = slice_data;
+				// let _t = DropTimer::new(format!("Full inference for slice: {id}").into());
 
-					let tensor_from_array = Tensor::from_array(tensor).map_err(YoloError::OrtInputError)?;
-					let inputs = inputs!["images" => tensor_from_array];
-					let output = {
-						// let _t = DropTimer::new(format!("Locked inference for slice: {id}").into());
-						let mut session_lock = arc_session.lock();
-						let outputs = session_lock
-							.deref_mut()
-							.run(inputs)
-							.map_err(YoloError::OrtInferenceError)?;
-						outputs["output0"]
-							.try_extract_array::<f32>()
-							.map_err(YoloError::OrtExtractSensorError)?
-							.reversed_axes()
-							.into_owned()
-					};
-					let output_boxes = output.slice(s![.., .., 0]);
-					let slice_w = original_bbox.width();
-					let slice_h = original_bbox.height();
-					let BoundingBox {
-						x1: slice_x1,
-						y1: slice_y1,
-						..
-					} = original_bbox;
-					Ok(
-						output_boxes
-							.axis_iter(Axis(0))
-							.filter_map(|row| {
-								let (class_id, prob) = row
-									.iter()
-									.skip(4) // skip bounding box coordinates
-									.enumerate()
-									.map(|(index, value)| (index, *value))
-									.reduce(|accum, row| if row.1 > accum.1 { row } else { accum })?;
+				let tensor_from_array = Tensor::from_array(tensor).map_err(YoloError::OrtInputError)?;
+				let inputs = inputs!["images" => tensor_from_array];
+				let output = {
+					// let _t = DropTimer::new(format!("Locked inference for slice: {id}").into());
+					let mut session_lock = arc_session.lock();
+					let outputs = session_lock
+						.deref_mut()
+						.run(inputs)
+						.map_err(YoloError::OrtInferenceError)?;
+					outputs["output0"]
+						.try_extract_array::<f32>()
+						.map_err(YoloError::OrtExtractSensorError)?
+						.reversed_axes()
+						.into_owned()
+				};
+				let output_boxes = output.slice(s![.., .., 0]);
+				let BoundingBox {
+					x1: slice_x1,
+					y1: slice_y1,
+					..
+				} = rel_bbox;
+				Ok(
+					output_boxes
+						.axis_iter(Axis(0))
+						.filter_map(|row| {
+							let (class_id, prob) = row
+								.iter()
+								.skip(4) // skip bounding box coordinates
+								.enumerate()
+								.map(|(index, value)| (index, *value))
+								.reduce(|accum, row| if row.1 > accum.1 { row } else { accum })?;
 
-								if prob < self.confidence_threshold {
-									return None;
-								}
+							if prob < self.confidence_threshold {
+								return None;
+							}
 
-								let xc = row[0_usize] / (YOLO_INPUT_IMAGE_WIDTH as f32) * (slice_w as f32);
-								let yc = row[1_usize] / (YOLO_INPUT_IMAGE_HEIGHT as f32) * (slice_h as f32);
-								let w = row[2_usize] / (YOLO_INPUT_IMAGE_WIDTH as f32) * (slice_w as f32);
-								let h = row[3_usize] / (YOLO_INPUT_IMAGE_HEIGHT as f32) * (slice_h as f32);
+							let xc = row[0_usize] / (scaled_width as f32);
+							let yc = row[1_usize] / (scaled_height as f32);
+							let w = row[2_usize] / (scaled_width as f32);
+							let h = row[3_usize] / (scaled_height as f32);
 
-								Some(YoloEntityOutput {
-									bounding_box: BoundingBox {
-										x1: slice_x1 + (xc - w / 2.).max(0.0) as u32,
-										y1: slice_y1 + (yc - h / 2.).max(0.0) as u32,
-										x2: slice_x1 + (xc + w / 2.).max(0.0) as u32,
-										y2: slice_y1 + (yc + h / 2.).max(0.0) as u32,
-									},
-									class_id: class_id.try_into().unwrap_or(u8::MAX),
-									confidence: prob,
-								})
+							let bounding_box = BoundingBox {
+								x1: slice_x1 + (xc - w / 2.).max(0.0),
+								y1: slice_y1 + (yc - h / 2.).max(0.0),
+								x2: slice_x1 + (xc + w / 2.).max(0.0),
+								y2: slice_y1 + (yc + h / 2.).max(0.0),
+							};
+							// 							let vs = (row[0_usize], row[1_usize], row[2_usize], row[3_usize]);
+							// 							info!(
+							// 								"{bounding_box:?},
+							// row: {vs:?},
+							// rel_bbox: {rel_bbox:?},
+							// orig_slice_bbox: {orig_slice_bbox:?},
+							// slice_x1: {slice_x1},
+							// slice_y1: {slice_y1},
+							// scaled_width: {scaled_width},
+							// scaled_height: {scaled_height},
+							// xc: {xc},
+							// yc: {yc},
+							// w: {w},
+							// h: {h}"
+							// 							);
+							Some(YoloEntityOutput {
+								bounding_box,
+								class_id: class_id.try_into().unwrap_or(u8::MAX),
+								confidence: prob,
 							})
-							.non_maximum_suppression_collect(self.final_metric, self.slice_iou_threshold)
-							.into_par_iter(),
-					)
-				},
-			)
+						})
+						.non_maximum_suppression_collect(self.final_metric, self.slice_iou_threshold)
+						.into_par_iter(),
+				)
+			})
 			.filter_map(|res: Result<_, YoloError>| match res {
 				Ok(r) => Some(r),
 				Err(err) => {

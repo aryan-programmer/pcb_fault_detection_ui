@@ -16,12 +16,34 @@ pub struct VecU8Wrapper {
 }
 
 #[derive(Debug, Clone, Copy)]
-#[frb(json_serializable, dart_metadata=("freezed"))]
-pub struct BoundingBox {
+pub(crate) struct SliceBoundingBox {
 	pub x1: u32,
 	pub y1: u32,
 	pub x2: u32,
 	pub y2: u32,
+}
+
+impl SliceBoundingBox {
+	pub(crate) fn new(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
+		Self { x1, y1, x2, y2 }
+	}
+
+	pub(crate) fn width(&self) -> u32 {
+		self.x2.saturating_sub(self.x1)
+	}
+
+	pub(crate) fn height(&self) -> u32 {
+		self.y2.saturating_sub(self.y1)
+	}
+}
+
+#[derive(Debug, Clone, Copy)]
+#[frb(json_serializable, dart_metadata=("freezed"))]
+pub struct BoundingBox {
+	pub x1: f32,
+	pub y1: f32,
+	pub x2: f32,
+	pub y2: f32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -39,23 +61,23 @@ pub struct YoloEntityOutput {
 
 impl BoundingBox {
 	#[frb(sync)]
-	pub fn new(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
+	pub fn new(x1: f32, y1: f32, x2: f32, y2: f32) -> Self {
 		Self { x1, y1, x2, y2 }
 	}
 
 	#[frb(sync)]
-	pub fn width(&self) -> u32 {
-		self.x2.saturating_sub(self.x1)
+	pub fn width(&self) -> f32 {
+		(self.x2 - self.x1).max(0.0)
 	}
 
 	#[frb(sync)]
-	pub fn height(&self) -> u32 {
-		self.y2.saturating_sub(self.y1)
+	pub fn height(&self) -> f32 {
+		(self.y2 - self.y1).max(0.0)
 	}
 
 	#[frb(sync)]
 	pub fn area(&self) -> f32 {
-		((self.width() as f32) * (self.height() as f32)).abs()
+		(self.width() * self.height()).abs()
 	}
 
 	#[frb(sync)]
@@ -66,7 +88,7 @@ impl BoundingBox {
 		let bottom = self.y2.min(box2.y2);
 
 		if right > left && bottom > top {
-			((right - left) as f32) * ((bottom - top) as f32)
+			(right - left) * (bottom - top)
 		} else {
 			0.0
 		}

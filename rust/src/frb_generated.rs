@@ -790,10 +790,10 @@ fn wire__crate__api__utils__bounding_box_new_impl(
 				)
 			};
 			let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-			let api_x1 = <u32>::sse_decode(&mut deserializer);
-			let api_y1 = <u32>::sse_decode(&mut deserializer);
-			let api_x2 = <u32>::sse_decode(&mut deserializer);
-			let api_y2 = <u32>::sse_decode(&mut deserializer);
+			let api_x1 = <f32>::sse_decode(&mut deserializer);
+			let api_y1 = <f32>::sse_decode(&mut deserializer);
+			let api_x2 = <f32>::sse_decode(&mut deserializer);
+			let api_y2 = <f32>::sse_decode(&mut deserializer);
 			deserializer.end();
 			transform_result_sse::<_, ()>((move || {
 				let output_ok = Result::<_, ()>::Ok(crate::api::utils::BoundingBox::new(
@@ -967,10 +967,10 @@ impl SseDecode for bool {
 impl SseDecode for crate::api::utils::BoundingBox {
 	// Codec=Sse (Serialization based), see doc to use other codecs
 	fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-		let mut var_x1 = <u32>::sse_decode(deserializer);
-		let mut var_y1 = <u32>::sse_decode(deserializer);
-		let mut var_x2 = <u32>::sse_decode(deserializer);
-		let mut var_y2 = <u32>::sse_decode(deserializer);
+		let mut var_x1 = <f32>::sse_decode(deserializer);
+		let mut var_y1 = <f32>::sse_decode(deserializer);
+		let mut var_x2 = <f32>::sse_decode(deserializer);
+		let mut var_y2 = <f32>::sse_decode(deserializer);
 		return crate::api::utils::BoundingBox {
 			x1: var_x1,
 			y1: var_y1,
@@ -1389,10 +1389,10 @@ impl SseEncode for bool {
 impl SseEncode for crate::api::utils::BoundingBox {
 	// Codec=Sse (Serialization based), see doc to use other codecs
 	fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-		<u32>::sse_encode(self.x1, serializer);
-		<u32>::sse_encode(self.y1, serializer);
-		<u32>::sse_encode(self.x2, serializer);
-		<u32>::sse_encode(self.y2, serializer);
+		<f32>::sse_encode(self.x1, serializer);
+		<f32>::sse_encode(self.y1, serializer);
+		<f32>::sse_encode(self.x2, serializer);
+		<f32>::sse_encode(self.y2, serializer);
 	}
 }
 

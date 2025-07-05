@@ -83,7 +83,7 @@ as bool,
 @JsonSerializable()
 
 class _ImageData extends ImageData {
-   _ImageData({required this.imageWidth, required this.imageHeight, final  List<YoloEntityOutput> components = const [], this.benchmarkOverlapThreshold = 0.4, final  List<YoloEntityOutput> trackDefects = const [], this.trackDefectDetectionThreshold = 0.25, this.tracksOnly = false}): _components = components,_trackDefects = trackDefects,super._();
+   _ImageData({required this.imageWidth, required this.imageHeight, final  List<YoloEntityOutput> components = const [], this.benchmarkOverlapThreshold = 0.1, final  List<YoloEntityOutput> trackDefects = const [], this.trackDefectDetectionThreshold = 0.25, this.tracksOnly = false}): _components = components,_trackDefects = trackDefects,super._();
   factory _ImageData.fromJson(Map<String, dynamic> json) => _$ImageDataFromJson(json);
 
 @override final  int imageWidth;

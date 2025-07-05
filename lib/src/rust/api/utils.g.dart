@@ -7,10 +7,10 @@ part of 'utils.dart';
 // **************************************************************************
 
 _BoundingBox _$BoundingBoxFromJson(Map<String, dynamic> json) => _BoundingBox(
-  x1: (json['x1'] as num).toInt(),
-  y1: (json['y1'] as num).toInt(),
-  x2: (json['x2'] as num).toInt(),
-  y2: (json['y2'] as num).toInt(),
+  x1: (json['x1'] as num).toDouble(),
+  y1: (json['y1'] as num).toDouble(),
+  x2: (json['x2'] as num).toDouble(),
+  y2: (json['y2'] as num).toDouble(),
 );
 
 Map<String, dynamic> _$BoundingBoxToJson(_BoundingBox instance) =>

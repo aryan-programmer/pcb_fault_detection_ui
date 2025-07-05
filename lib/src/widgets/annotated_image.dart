@@ -82,10 +82,12 @@ class AnnotatedImage extends StatelessWidget {
     required double threshold,
     required void Function(YoloEntityOutput)? onRemoved,
   }) {
-    final bw = (box.boundingBox.x2 - box.boundingBox.x1).toDouble();
-    final bh = (box.boundingBox.y2 - box.boundingBox.y1).toDouble();
-    final bx = (box.boundingBox.x1).toDouble();
-    final by = (box.boundingBox.y1).toDouble();
+    final bw =
+        (box.boundingBox.x2 - box.boundingBox.x1) * imageWidth.toDouble();
+    final bh =
+        (box.boundingBox.y2 - box.boundingBox.y1) * imageHeight.toDouble();
+    final bx = (box.boundingBox.x1) * imageWidth.toDouble();
+    final by = (box.boundingBox.y1) * imageHeight.toDouble();
     if (box.confidence < threshold) {
       return [];
     }
@@ -99,7 +101,12 @@ class AnnotatedImage extends StatelessWidget {
     final padding = width;
     return [
       Positioned(
-        key: ValueKey((#annotatedImageBoundingBoxPositioned, imagePath, color, box)),
+        key: ValueKey((
+          #annotatedImageBoundingBoxPositioned,
+          imagePath,
+          color,
+          box,
+        )),
         left: bx - padding,
         top: by - padding,
         width: bw + padding * 2,

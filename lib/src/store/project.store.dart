@@ -210,31 +210,32 @@ sealed class _ProjectStore with Store {
   Future<void> onOpenImageFile() async {
     final projectFolder = this.projectFolder;
     if (projectFolder == null) return;
-    final file = await showImageOpenDialog("Open Image");
-    if (file == null) return;
-    final imageOrigName = path.basenameWithoutExtension(file.path);
-    final folderName =
-        "image-${DateFormat("yyyy-MM-ddTHH_mm_ss").format(DateTime.now())}-$imageOrigName";
-    final cmd = img.Command()
-      ..decodeImageFile(file.path)
-      ..writeToFile(path.join(projectFolder, folderName, IMAGE_FILE_NAME));
-    await cmd.executeThread();
-    final image = await cmd.getImage();
-    if (image == null) return;
-    final dataFile = File(
-      path.join(projectFolder, folderName, IMAGE_DATA_FILE_NAME),
-    );
-    final imageData = ImageData(
-      imageWidth: image.width,
-      imageHeight: image.height,
-    );
-    dataFile.writeAsStringSync(jsonEncode(imageData), flush: true);
-    images[folderName] = ImageDataStore(
-      imageData,
-      folderName: folderName,
-      parent: parentStore,
-    );
-    log("Image: $projectFolder/$folderName");
+    final files = await showMultipleImageOpenDialog("Open Image(s)");
+    for (final file in files) {
+      final imageOrigName = path.basenameWithoutExtension(file.path);
+      final folderName =
+          "image-${DateFormat("yyyy-MM-ddTHH_mm_ss").format(DateTime.now())}-$imageOrigName";
+      final cmd = img.Command()
+        ..decodeImageFile(file.path)
+        ..writeToFile(path.join(projectFolder, folderName, IMAGE_FILE_NAME));
+      await cmd.executeThread();
+      final image = await cmd.getImage();
+      if (image == null) return;
+      final dataFile = File(
+        path.join(projectFolder, folderName, IMAGE_DATA_FILE_NAME),
+      );
+      final imageData = ImageData(
+        imageWidth: image.width,
+        imageHeight: image.height,
+      );
+      dataFile.writeAsStringSync(jsonEncode(imageData), flush: true);
+      images[folderName] = ImageDataStore(
+        imageData,
+        folderName: folderName,
+        parent: parentStore,
+      );
+      log("Image: $projectFolder/$folderName");
+    }
   }
 
   @action

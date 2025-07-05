@@ -13,11 +13,11 @@ enum ImageStatus {
     late Color tileColor;
     switch (this) {
       case ImageStatus.Unchecked:
-        trailingIcon = Icons.warning_amber;
-        tileColor = Colors.amberAccent[100]!;
+        trailingIcon = Icons.question_mark;
+        tileColor = Colors.blueGrey[100]!;
       case ImageStatus.Faulty:
-        trailingIcon = Icons.error;
-        tileColor = Colors.redAccent[100]!;
+        trailingIcon = Icons.warning;
+        tileColor = Colors.amberAccent[100]!;
       case ImageStatus.Ok:
         trailingIcon = Icons.check;
         tileColor = Colors.greenAccent[100]!;

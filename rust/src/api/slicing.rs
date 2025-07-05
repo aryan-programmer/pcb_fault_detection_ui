@@ -1,7 +1,7 @@
 use flutter_rust_bridge::frb;
 use ndarray::Array4;
 
-use crate::api::utils::{info, BoundingBox};
+use crate::api::utils::{info, BoundingBox, SliceBoundingBox};
 
 /// Generate slice bounding boxes for an image
 pub(crate) fn get_slice_bboxes(
@@ -13,7 +13,7 @@ pub(crate) fn get_slice_bboxes(
 	}: SliceInputParams,
 	image_width: u32,
 	image_height: u32,
-) -> Vec<BoundingBox> {
+) -> Vec<SliceBoundingBox> {
 	// Early return for edge cases
 	if slice_width == 0
 		|| slice_height == 0
@@ -69,7 +69,7 @@ pub(crate) fn get_slice_bboxes(
 					(x_max, y_max, x_min, y_min)
 				};
 
-			slice_bboxes.push(BoundingBox::new(
+			slice_bboxes.push(SliceBoundingBox::new(
 				final_x_min,
 				final_y_min,
 				final_x_max,
@@ -120,6 +120,9 @@ pub struct SliceInputParams {
 #[derive(Debug, Clone)]
 pub(crate) struct SliceData {
 	pub(crate) tensor: Array4<f32>, // 1*(channels=3)*640*640
-	pub(crate) original_bbox: BoundingBox,
+	// pub(crate) orig_slice_bbox: SliceBoundingBox,
+	pub(crate) rel_bbox: BoundingBox,
+	pub(crate) scaled_width: u32,
+	pub(crate) scaled_height: u32,
 	// pub(crate) id: u32, // For tracking & timing
 }

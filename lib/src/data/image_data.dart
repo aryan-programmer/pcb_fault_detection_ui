@@ -15,7 +15,7 @@ sealed class ImageData with _$ImageData {
     required int imageHeight,
     @Default([]) List<YoloEntityOutput> components,
     // @Default(0.3) double componentDetectionThreshold,
-    @Default(0.4) double benchmarkOverlapThreshold,
+    @Default(0.1) double benchmarkOverlapThreshold,
     @Default([]) List<YoloEntityOutput> trackDefects,
     @Default(0.25) double trackDefectDetectionThreshold,
     @Default(false) bool tracksOnly,

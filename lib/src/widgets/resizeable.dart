@@ -53,7 +53,7 @@ class _CoverInteractiveViewerState extends State<CoverInteractiveViewer> {
   @override
   Widget build(BuildContext _) {
     return LayoutBuilder(
-      builder: (__, constraint) {
+      builder: (_, constraint) {
         return InteractiveViewer(
           transformationController: controller,
           minScale: 0.001,

@@ -71,26 +71,47 @@ sealed class ModelInferenceParameters with _$ModelInferenceParameters {
           ],
         );
       case Resolution.high:
-        int sliceSize1 = sampleLength ~/ 3.5;
+        int sliceSize1 = minLength ~/ 2.5;
+        int sliceSize2 = sampleLength ~/ 1.5;
         return ModelInferenceParameters(
           keepOriginal: true,
           sliceOptions: [
             SliceInputParams(
               sliceWidth: sliceSize1,
               sliceHeight: sliceSize1,
-              overlapWidthRatio: 0.175,
-              overlapHeightRatio: 0.175,
+              overlapWidthRatio: 0.2,
+              overlapHeightRatio: 0.2,
+            ),
+            SliceInputParams(
+              sliceWidth: sliceSize2,
+              sliceHeight: sliceSize2,
+              overlapWidthRatio: 0.15,
+              overlapHeightRatio: 0.15,
             ),
           ],
         );
       case Resolution.ultraHigh:
-        int sliceSize1 = sampleLength ~/ 4;
+        int sliceSize1 = minLength ~/ 2.5;
+        int sliceSize2 = sampleLength ~/ 1.5;
+        int sliceSize0 = sampleLength ~/ 3;
         return ModelInferenceParameters(
-          keepOriginal: false,
+          keepOriginal: true,
           sliceOptions: [
+            SliceInputParams(
+              sliceWidth: sliceSize0,
+              sliceHeight: sliceSize0,
+              overlapWidthRatio: 0.125,
+              overlapHeightRatio: 0.125,
+            ),
             SliceInputParams(
               sliceWidth: sliceSize1,
               sliceHeight: sliceSize1,
+              overlapWidthRatio: 0.2,
+              overlapHeightRatio: 0.2,
+            ),
+            SliceInputParams(
+              sliceWidth: sliceSize2,
+              sliceHeight: sliceSize2,
               overlapWidthRatio: 0.15,
               overlapHeightRatio: 0.15,
             ),

@@ -84,6 +84,7 @@ class _BenchmarkAccordionPanelState extends State<BenchmarkAccordionPanel> {
           showInferenceFailedSnackbar(context);
         })
         .then((_) {
+          if (!context.mounted) return;
           setState(() {
             loading = false;
           });

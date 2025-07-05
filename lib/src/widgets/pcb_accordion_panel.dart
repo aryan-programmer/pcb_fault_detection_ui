@@ -19,11 +19,13 @@ import 'package:provider/provider.dart';
 class PcbCardListNavTile extends StatelessWidget {
   final String name;
   final ImageStatusTileData status;
+  final bool enableBackButton;
 
   const PcbCardListNavTile({
     super.key,
     required this.name,
     required this.status,
+    this.enableBackButton = true,
   });
 
   @override
@@ -37,9 +39,11 @@ class PcbCardListNavTile extends StatelessWidget {
       tileColor: tileColor,
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
+        onPressed: enableBackButton
+            ? () {
+                Navigator.of(context).pop();
+              }
+            : null,
       ),
       trailing: Icon(trailingIcon),
     );
@@ -126,6 +130,7 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
           showInferenceFailedSnackbar(context);
         })
         .then((_) {
+          if (!context.mounted) return;
           setState(() {
             loading = false;
           });
@@ -147,6 +152,7 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
           showInferenceFailedSnackbar(context);
         })
         .then((_) {
+          if (!context.mounted) return;
           setState(() {
             loading = false;
           });
@@ -241,6 +247,7 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             PcbCardListNavTile(
+              enableBackButton: !loading,
               name: widget.imageFolderName,
               status: widget.imageDataStore.statusTileData,
             ),
@@ -266,7 +273,7 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
                     ? TrackDefectClasses.INT_TO_COMPONENT
                     : ComponentClass.INT_TO_COMPONENT,
                 onRemoveRed: widget.imageDataStore.removeComponent,
-                onRemoveBlue: store.removeBenchmarkImageComponent,
+                onRemoveBlue: widget.imageDataStore.addComponent,
                 minBoxWidth: minBoxWidth,
                 maxBoxWidth: maxBoxWidth,
               ),

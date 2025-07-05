@@ -133,6 +133,18 @@ mixin _$ImageDataStore on _ImageDataStore, Store {
   }
 
   @override
+  void addComponent(YoloEntityOutput addVal) {
+    final _$actionInfo = _$_ImageDataStoreActionController.startAction(
+      name: '_ImageDataStore.addComponent',
+    );
+    try {
+      return super.addComponent(addVal);
+    } finally {
+      _$_ImageDataStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void deleteImage() {
     final _$actionInfo = _$_ImageDataStoreActionController.startAction(
       name: '_ImageDataStore.deleteImage',

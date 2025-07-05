@@ -156,6 +156,16 @@ sealed class _ImageDataStore with Store {
   }
 
   @action
+  void addComponent(YoloEntityOutput addVal) {
+    var components = imageData.components;
+    final idx = components.indexOf(addVal);
+    if (idx != -1) return;
+    components = List.of(components);
+    components.add(addVal);
+    setComponents(components);
+  }
+
+  @action
   void deleteImage() {
     parent.removeImage(folderName);
   }
