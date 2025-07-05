@@ -11,14 +11,16 @@ class AnnotatedImage extends StatelessWidget {
   final int imageHeight;
   final double thresholdRed;
   final double thresholdBlue;
-  final double? boxWidthOverride;
+  final double minBoxWidth;
+  final double maxBoxWidth;
+  late final double boxWidthDiff;
   final List<YoloEntityOutput>? boxesRed;
   final List<YoloEntityOutput>? boxesBlue;
   final Map<int, ResultClass> intToComponent;
   final void Function(YoloEntityOutput)? onRemoveRed;
   final void Function(YoloEntityOutput)? onRemoveBlue;
 
-  const AnnotatedImage({
+  AnnotatedImage({
     super.key,
     required this.imagePath,
     this.boxesRed,
@@ -30,8 +32,12 @@ class AnnotatedImage extends StatelessWidget {
     required this.intToComponent,
     this.onRemoveRed,
     this.onRemoveBlue,
-    this.boxWidthOverride,
-  });
+    double? minBoxWidth,
+    double? maxBoxWidth,
+  }) : minBoxWidth = minBoxWidth ?? 1.5,
+       maxBoxWidth = maxBoxWidth ?? 6 {
+    boxWidthDiff = this.maxBoxWidth - this.minBoxWidth;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,22 +51,26 @@ class AnnotatedImage extends StatelessWidget {
             width: imageWidth.toDouble(),
             height: imageHeight.toDouble(),
           ),
-          ...?boxesRed?.expand(
-            (box) => displayBox(
-              box: box,
-              color: Colors.redAccent,
-              threshold: thresholdRed,
-              onRemoved: onRemoveRed,
-            ),
-          ),
-          ...?boxesBlue?.expand(
-            (box) => displayBox(
-              box: box,
-              color: Colors.purpleAccent,
-              threshold: thresholdBlue,
-              onRemoved: onRemoveBlue,
-            ),
-          ),
+          ...?boxesRed
+              ?.take(1000)
+              .expand(
+                (box) => displayBox(
+                  box: box,
+                  color: Colors.redAccent,
+                  threshold: thresholdRed,
+                  onRemoved: onRemoveRed,
+                ),
+              ),
+          ...?boxesBlue
+              ?.take(1000)
+              .expand(
+                (box) => displayBox(
+                  box: box,
+                  color: Colors.purpleAccent,
+                  threshold: thresholdBlue,
+                  onRemoved: onRemoveBlue,
+                ),
+              ),
         ],
       ),
     );
@@ -85,8 +95,7 @@ class AnnotatedImage extends StatelessWidget {
     final tooltipMessage = className == null
         ? "$confidencePercentage%"
         : "$className: $confidencePercentage%";
-    final width =
-        boxWidthOverride ?? ((0.5 + box.confidence.clamp(0, 1)) * 3.0);
+    final width = minBoxWidth + ((box.confidence.clamp(0, 1)) * boxWidthDiff);
     final padding = width;
     return [
       Positioned(

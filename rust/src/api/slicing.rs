@@ -15,13 +15,14 @@ pub(crate) fn get_slice_bboxes(
 	image_height: u32,
 ) -> Vec<BoundingBox> {
 	// Early return for edge cases
-	if slice_width == 0 || slice_height == 0 || image_width == 0 || image_height == 0 {
+	if slice_width == 0
+		|| slice_height == 0
+		|| image_width == 0
+		|| image_height == 0
+		|| image_width <= slice_width
+		|| image_height <= slice_height
+	{
 		return Vec::new();
-	}
-
-	// If image is smaller than slice size, return single bbox covering entire image
-	if image_width <= slice_width && image_height <= slice_height {
-		return vec![BoundingBox::new(0, 0, image_width, image_height)];
 	}
 
 	// Clamp overlap ratios to valid range [0.0, 1.0)

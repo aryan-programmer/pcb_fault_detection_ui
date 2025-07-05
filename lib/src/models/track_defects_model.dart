@@ -20,9 +20,10 @@ class TrackDefectsModel {
       )).buffer.asUint8List();
       var yoloModelSession = await YoloModelSession.fromMemory(
         bytes: VecU8Wrapper(v: modelBytes),
-        numLabels: BigInt.from(22),
-        iouThreshold: 0.3,
+        finalMetricThreshold: 0.5,
+        finalMetric: MatchMetric.iou,
         sliceIouThreshold: 0.5,
+        confidenceThreshold: 0.05,
       );
       return TrackDefectsModel._(yoloModelSession);
     } finally {

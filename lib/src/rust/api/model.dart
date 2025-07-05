@@ -14,28 +14,34 @@ import 'utils.dart';
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<YoloModelSession>>
 abstract class YoloModelSession implements RustOpaqueInterface {
-  double get iouThreshold;
+  double get confidenceThreshold;
 
-  BigInt get numLabels;
+  MatchMetric get finalMetric;
+
+  double get finalMetricThreshold;
 
   double get sliceIouThreshold;
 
-  set iouThreshold(double iouThreshold);
+  set confidenceThreshold(double confidenceThreshold);
 
-  set numLabels(BigInt numLabels);
+  set finalMetric(MatchMetric finalMetric);
+
+  set finalMetricThreshold(double finalMetricThreshold);
 
   set sliceIouThreshold(double sliceIouThreshold);
 
   static Future<YoloModelSession> fromMemory({
     required VecU8Wrapper bytes,
-    required BigInt numLabels,
-    required double iouThreshold,
+    required MatchMetric finalMetric,
+    required double finalMetricThreshold,
     required double sliceIouThreshold,
+    required double confidenceThreshold,
   }) => RustLib.instance.api.crateApiModelYoloModelSessionFromMemory(
     bytes: bytes,
-    numLabels: numLabels,
-    iouThreshold: iouThreshold,
+    finalMetric: finalMetric,
+    finalMetricThreshold: finalMetricThreshold,
     sliceIouThreshold: sliceIouThreshold,
+    confidenceThreshold: confidenceThreshold,
   );
 
   Future<List<YoloEntityOutput>> slicedInference({

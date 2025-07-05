@@ -9,9 +9,9 @@ import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'utils.freezed.dart';
 part 'utils.g.dart';
 
-// These functions are ignored because they are not marked as `pub`: `new_with_log`, `new`, `non_maximum_suppression_with_sorted_boxes`, `non_maximum_suppression`
+// These functions are ignored because they are not marked as `pub`: `new_with_log`, `new`, `non_maximum_suppression_with_sorted_boxes`, `non_maximum_suppression`, `sort_predictions`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `DropTimer`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `drop`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `drop`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `non_maximum_suppression_collect`, `non_maximum_suppression_collect`
 
 @freezed
@@ -32,11 +32,21 @@ sealed class BoundingBox with _$BoundingBox {
   double intersection({required BoundingBox box2}) => RustLib.instance.api
       .crateApiUtilsBoundingBoxIntersection(that: this, box2: box2);
 
+  double ios({required BoundingBox box2}) =>
+      RustLib.instance.api.crateApiUtilsBoundingBoxIos(that: this, box2: box2);
+
   double iou({required BoundingBox box2}) =>
       RustLib.instance.api.crateApiUtilsBoundingBoxIou(that: this, box2: box2);
 
   bool isValid() =>
       RustLib.instance.api.crateApiUtilsBoundingBoxIsValid(that: this);
+
+  double metric({required BoundingBox box2, required MatchMetric metric}) =>
+      RustLib.instance.api.crateApiUtilsBoundingBoxMetric(
+        that: this,
+        box2: box2,
+        metric: metric,
+      );
 
   factory BoundingBox({
     required int x1,
@@ -58,6 +68,8 @@ sealed class BoundingBox with _$BoundingBox {
   factory BoundingBox.fromJson(Map<String, dynamic> json) =>
       _$BoundingBoxFromJson(json);
 }
+
+enum MatchMetric { iou, ios }
 
 class VecU8Wrapper {
   final Uint8List v;

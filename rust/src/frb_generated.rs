@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
 	default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.10.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -345365251;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 2037739718;
 
 // Section: executor
 
@@ -91,14 +91,14 @@ fn wire__crate__api__error__YoloError_to_string__impl(
 		},
 	)
 }
-fn wire__crate__api__model__YoloModelSession_auto_accessor_get_iou_threshold_impl(
+fn wire__crate__api__model__YoloModelSession_auto_accessor_get_confidence_threshold_impl(
 	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
 	rust_vec_len_: i32,
 	data_len_: i32,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
 	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
 		flutter_rust_bridge::for_generated::TaskInfo {
-			debug_name: "YoloModelSession_auto_accessor_get_iou_threshold",
+			debug_name: "YoloModelSession_auto_accessor_get_confidence_threshold",
 			port: None,
 			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
 		},
@@ -128,20 +128,20 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_get_iou_threshold_imp
 					}
 				}
 				let api_that_guard = api_that_guard.unwrap();
-				let output_ok = Result::<_, ()>::Ok(api_that_guard.iou_threshold.clone())?;
+				let output_ok = Result::<_, ()>::Ok(api_that_guard.confidence_threshold.clone())?;
 				Ok(output_ok)
 			})())
 		},
 	)
 }
-fn wire__crate__api__model__YoloModelSession_auto_accessor_get_num_labels_impl(
+fn wire__crate__api__model__YoloModelSession_auto_accessor_get_final_metric_impl(
 	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
 	rust_vec_len_: i32,
 	data_len_: i32,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
 	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
 		flutter_rust_bridge::for_generated::TaskInfo {
-			debug_name: "YoloModelSession_auto_accessor_get_num_labels",
+			debug_name: "YoloModelSession_auto_accessor_get_final_metric",
 			port: None,
 			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
 		},
@@ -171,7 +171,50 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_get_num_labels_impl(
 					}
 				}
 				let api_that_guard = api_that_guard.unwrap();
-				let output_ok = Result::<_, ()>::Ok(api_that_guard.num_labels.clone())?;
+				let output_ok = Result::<_, ()>::Ok(api_that_guard.final_metric.clone())?;
+				Ok(output_ok)
+			})())
+		},
+	)
+}
+fn wire__crate__api__model__YoloModelSession_auto_accessor_get_final_metric_threshold_impl(
+	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+	rust_vec_len_: i32,
+	data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+		flutter_rust_bridge::for_generated::TaskInfo {
+			debug_name: "YoloModelSession_auto_accessor_get_final_metric_threshold",
+			port: None,
+			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+		},
+		move || {
+			let message = unsafe {
+				flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+					ptr_,
+					rust_vec_len_,
+					data_len_,
+				)
+			};
+			let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+			let api_that = <RustOpaqueMoi<
+				flutter_rust_bridge::for_generated::RustAutoOpaqueInner<YoloModelSession>,
+			>>::sse_decode(&mut deserializer);
+			deserializer.end();
+			transform_result_sse::<_, ()>((move || {
+				let mut api_that_guard = None;
+				let decode_indices_ =
+					flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+						flutter_rust_bridge::for_generated::LockableOrderInfo::new(&api_that, 0, false),
+					]);
+				for i in decode_indices_ {
+					match i {
+						0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+						_ => unreachable!(),
+					}
+				}
+				let api_that_guard = api_that_guard.unwrap();
+				let output_ok = Result::<_, ()>::Ok(api_that_guard.final_metric_threshold.clone())?;
 				Ok(output_ok)
 			})())
 		},
@@ -220,14 +263,14 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_get_slice_iou_thresho
 		},
 	)
 }
-fn wire__crate__api__model__YoloModelSession_auto_accessor_set_iou_threshold_impl(
+fn wire__crate__api__model__YoloModelSession_auto_accessor_set_confidence_threshold_impl(
 	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
 	rust_vec_len_: i32,
 	data_len_: i32,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
 	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
 		flutter_rust_bridge::for_generated::TaskInfo {
-			debug_name: "YoloModelSession_auto_accessor_set_iou_threshold",
+			debug_name: "YoloModelSession_auto_accessor_set_confidence_threshold",
 			port: None,
 			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
 		},
@@ -243,7 +286,7 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_set_iou_threshold_imp
 			let api_that = <RustOpaqueMoi<
 				flutter_rust_bridge::for_generated::RustAutoOpaqueInner<YoloModelSession>,
 			>>::sse_decode(&mut deserializer);
-			let api_iou_threshold = <f32>::sse_decode(&mut deserializer);
+			let api_confidence_threshold = <f32>::sse_decode(&mut deserializer);
 			deserializer.end();
 			transform_result_sse::<_, ()>((move || {
 				let mut api_that_guard = None;
@@ -260,7 +303,7 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_set_iou_threshold_imp
 				let mut api_that_guard = api_that_guard.unwrap();
 				let output_ok = Result::<_, ()>::Ok({
 					{
-						api_that_guard.iou_threshold = api_iou_threshold;
+						api_that_guard.confidence_threshold = api_confidence_threshold;
 					};
 				})?;
 				Ok(output_ok)
@@ -268,14 +311,14 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_set_iou_threshold_imp
 		},
 	)
 }
-fn wire__crate__api__model__YoloModelSession_auto_accessor_set_num_labels_impl(
+fn wire__crate__api__model__YoloModelSession_auto_accessor_set_final_metric_impl(
 	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
 	rust_vec_len_: i32,
 	data_len_: i32,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
 	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
 		flutter_rust_bridge::for_generated::TaskInfo {
-			debug_name: "YoloModelSession_auto_accessor_set_num_labels",
+			debug_name: "YoloModelSession_auto_accessor_set_final_metric",
 			port: None,
 			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
 		},
@@ -291,7 +334,7 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_set_num_labels_impl(
 			let api_that = <RustOpaqueMoi<
 				flutter_rust_bridge::for_generated::RustAutoOpaqueInner<YoloModelSession>,
 			>>::sse_decode(&mut deserializer);
-			let api_num_labels = <usize>::sse_decode(&mut deserializer);
+			let api_final_metric = <crate::api::utils::MatchMetric>::sse_decode(&mut deserializer);
 			deserializer.end();
 			transform_result_sse::<_, ()>((move || {
 				let mut api_that_guard = None;
@@ -308,7 +351,55 @@ fn wire__crate__api__model__YoloModelSession_auto_accessor_set_num_labels_impl(
 				let mut api_that_guard = api_that_guard.unwrap();
 				let output_ok = Result::<_, ()>::Ok({
 					{
-						api_that_guard.num_labels = api_num_labels;
+						api_that_guard.final_metric = api_final_metric;
+					};
+				})?;
+				Ok(output_ok)
+			})())
+		},
+	)
+}
+fn wire__crate__api__model__YoloModelSession_auto_accessor_set_final_metric_threshold_impl(
+	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+	rust_vec_len_: i32,
+	data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+		flutter_rust_bridge::for_generated::TaskInfo {
+			debug_name: "YoloModelSession_auto_accessor_set_final_metric_threshold",
+			port: None,
+			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+		},
+		move || {
+			let message = unsafe {
+				flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+					ptr_,
+					rust_vec_len_,
+					data_len_,
+				)
+			};
+			let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+			let api_that = <RustOpaqueMoi<
+				flutter_rust_bridge::for_generated::RustAutoOpaqueInner<YoloModelSession>,
+			>>::sse_decode(&mut deserializer);
+			let api_final_metric_threshold = <f32>::sse_decode(&mut deserializer);
+			deserializer.end();
+			transform_result_sse::<_, ()>((move || {
+				let mut api_that_guard = None;
+				let decode_indices_ =
+					flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+						flutter_rust_bridge::for_generated::LockableOrderInfo::new(&api_that, 0, true),
+					]);
+				for i in decode_indices_ {
+					match i {
+						0 => api_that_guard = Some(api_that.lockable_decode_sync_ref_mut()),
+						_ => unreachable!(),
+					}
+				}
+				let mut api_that_guard = api_that_guard.unwrap();
+				let output_ok = Result::<_, ()>::Ok({
+					{
+						api_that_guard.final_metric_threshold = api_final_metric_threshold;
 					};
 				})?;
 				Ok(output_ok)
@@ -386,17 +477,19 @@ fn wire__crate__api__model__YoloModelSession_from_memory_impl(
 			};
 			let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
 			let api_bytes = <crate::api::utils::VecU8Wrapper>::sse_decode(&mut deserializer);
-			let api_num_labels = <usize>::sse_decode(&mut deserializer);
-			let api_iou_threshold = <f32>::sse_decode(&mut deserializer);
+			let api_final_metric = <crate::api::utils::MatchMetric>::sse_decode(&mut deserializer);
+			let api_final_metric_threshold = <f32>::sse_decode(&mut deserializer);
 			let api_slice_iou_threshold = <f32>::sse_decode(&mut deserializer);
+			let api_confidence_threshold = <f32>::sse_decode(&mut deserializer);
 			deserializer.end();
 			move |context| {
 				transform_result_sse::<_, YoloError>((move || {
 					let output_ok = crate::api::model::YoloModelSession::from_memory(
 						api_bytes,
-						api_num_labels,
-						api_iou_threshold,
+						api_final_metric,
+						api_final_metric_threshold,
 						api_slice_iou_threshold,
+						api_confidence_threshold,
 					)?;
 					Ok(output_ok)
 				})())
@@ -553,6 +646,37 @@ fn wire__crate__api__utils__bounding_box_intersection_impl(
 		},
 	)
 }
+fn wire__crate__api__utils__bounding_box_ios_impl(
+	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+	rust_vec_len_: i32,
+	data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+		flutter_rust_bridge::for_generated::TaskInfo {
+			debug_name: "bounding_box_ios",
+			port: None,
+			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+		},
+		move || {
+			let message = unsafe {
+				flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+					ptr_,
+					rust_vec_len_,
+					data_len_,
+				)
+			};
+			let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+			let api_that = <crate::api::utils::BoundingBox>::sse_decode(&mut deserializer);
+			let api_box2 = <crate::api::utils::BoundingBox>::sse_decode(&mut deserializer);
+			deserializer.end();
+			transform_result_sse::<_, ()>((move || {
+				let output_ok =
+					Result::<_, ()>::Ok(crate::api::utils::BoundingBox::ios(&api_that, &api_box2))?;
+				Ok(output_ok)
+			})())
+		},
+	)
+}
 fn wire__crate__api__utils__bounding_box_iou_impl(
 	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
 	rust_vec_len_: i32,
@@ -608,6 +732,39 @@ fn wire__crate__api__utils__bounding_box_is_valid_impl(
 			deserializer.end();
 			transform_result_sse::<_, ()>((move || {
 				let output_ok = Result::<_, ()>::Ok(crate::api::utils::BoundingBox::is_valid(&api_that))?;
+				Ok(output_ok)
+			})())
+		},
+	)
+}
+fn wire__crate__api__utils__bounding_box_metric_impl(
+	ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+	rust_vec_len_: i32,
+	data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+	FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+		flutter_rust_bridge::for_generated::TaskInfo {
+			debug_name: "bounding_box_metric",
+			port: None,
+			mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+		},
+		move || {
+			let message = unsafe {
+				flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+					ptr_,
+					rust_vec_len_,
+					data_len_,
+				)
+			};
+			let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+			let api_that = <crate::api::utils::BoundingBox>::sse_decode(&mut deserializer);
+			let api_box2 = <crate::api::utils::BoundingBox>::sse_decode(&mut deserializer);
+			let api_metric = <crate::api::utils::MatchMetric>::sse_decode(&mut deserializer);
+			deserializer.end();
+			transform_result_sse::<_, ()>((move || {
+				let output_ok = Result::<_, ()>::Ok(crate::api::utils::BoundingBox::metric(
+					&api_that, &api_box2, api_metric,
+				))?;
 				Ok(output_ok)
 			})())
 		},
@@ -830,6 +987,13 @@ impl SseDecode for f32 {
 	}
 }
 
+impl SseDecode for i32 {
+	// Codec=Sse (Serialization based), see doc to use other codecs
+	fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+		deserializer.cursor.read_i32::<NativeEndian>().unwrap()
+	}
+}
+
 impl SseDecode for Vec<u8> {
 	// Codec=Sse (Serialization based), see doc to use other codecs
 	fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -867,6 +1031,18 @@ impl SseDecode for Vec<crate::api::utils::YoloEntityOutput> {
 			));
 		}
 		return ans_;
+	}
+}
+
+impl SseDecode for crate::api::utils::MatchMetric {
+	// Codec=Sse (Serialization based), see doc to use other codecs
+	fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+		let mut inner = <i32>::sse_decode(deserializer);
+		return match inner {
+			0 => crate::api::utils::MatchMetric::IOU,
+			1 => crate::api::utils::MatchMetric::IOS,
+			_ => unreachable!("Invalid variant for MatchMetric: {}", inner),
+		};
 	}
 }
 
@@ -934,13 +1110,6 @@ impl SseDecode for crate::api::utils::YoloEntityOutput {
 	}
 }
 
-impl SseDecode for i32 {
-	// Codec=Sse (Serialization based), see doc to use other codecs
-	fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-		deserializer.cursor.read_i32::<NativeEndian>().unwrap()
-	}
-}
-
 fn pde_ffi_dispatcher_primary_impl(
 	func_id: i32,
 	port: flutter_rust_bridge::for_generated::MessagePort,
@@ -950,16 +1119,16 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
 	// Codec=Pde (Serialization + dispatch), see doc to use other codecs
 	match func_id {
-		8 => {
+		10 => {
 			wire__crate__api__model__YoloModelSession_from_memory_impl(port, ptr, rust_vec_len, data_len)
 		}
-		9 => wire__crate__api__model__YoloModelSession_sliced_inference_impl(
+		11 => wire__crate__api__model__YoloModelSession_sliced_inference_impl(
 			port,
 			ptr,
 			rust_vec_len,
 			data_len,
 		),
-		18 => wire__crate__api__main__init_app_impl(port, ptr, rust_vec_len, data_len),
+		22 => wire__crate__api__main__init_app_impl(port, ptr, rust_vec_len, data_len),
 		_ => unreachable!(),
 	}
 }
@@ -973,44 +1142,56 @@ fn pde_ffi_dispatcher_sync_impl(
 	// Codec=Pde (Serialization + dispatch), see doc to use other codecs
 	match func_id {
 		1 => wire__crate__api__error__YoloError_to_string__impl(ptr, rust_vec_len, data_len),
-		2 => wire__crate__api__model__YoloModelSession_auto_accessor_get_iou_threshold_impl(
+		2 => wire__crate__api__model__YoloModelSession_auto_accessor_get_confidence_threshold_impl(
 			ptr,
 			rust_vec_len,
 			data_len,
 		),
-		3 => wire__crate__api__model__YoloModelSession_auto_accessor_get_num_labels_impl(
+		3 => wire__crate__api__model__YoloModelSession_auto_accessor_get_final_metric_impl(
 			ptr,
 			rust_vec_len,
 			data_len,
 		),
-		4 => wire__crate__api__model__YoloModelSession_auto_accessor_get_slice_iou_threshold_impl(
+		4 => wire__crate__api__model__YoloModelSession_auto_accessor_get_final_metric_threshold_impl(
 			ptr,
 			rust_vec_len,
 			data_len,
 		),
-		5 => wire__crate__api__model__YoloModelSession_auto_accessor_set_iou_threshold_impl(
+		5 => wire__crate__api__model__YoloModelSession_auto_accessor_get_slice_iou_threshold_impl(
 			ptr,
 			rust_vec_len,
 			data_len,
 		),
-		6 => wire__crate__api__model__YoloModelSession_auto_accessor_set_num_labels_impl(
+		6 => wire__crate__api__model__YoloModelSession_auto_accessor_set_confidence_threshold_impl(
 			ptr,
 			rust_vec_len,
 			data_len,
 		),
-		7 => wire__crate__api__model__YoloModelSession_auto_accessor_set_slice_iou_threshold_impl(
+		7 => wire__crate__api__model__YoloModelSession_auto_accessor_set_final_metric_impl(
 			ptr,
 			rust_vec_len,
 			data_len,
 		),
-		10 => wire__crate__api__utils__bounding_box_area_impl(ptr, rust_vec_len, data_len),
-		11 => wire__crate__api__utils__bounding_box_height_impl(ptr, rust_vec_len, data_len),
-		12 => wire__crate__api__utils__bounding_box_intersection_impl(ptr, rust_vec_len, data_len),
-		13 => wire__crate__api__utils__bounding_box_iou_impl(ptr, rust_vec_len, data_len),
-		14 => wire__crate__api__utils__bounding_box_is_valid_impl(ptr, rust_vec_len, data_len),
-		15 => wire__crate__api__utils__bounding_box_new_impl(ptr, rust_vec_len, data_len),
-		16 => wire__crate__api__utils__bounding_box_union_impl(ptr, rust_vec_len, data_len),
-		17 => wire__crate__api__utils__bounding_box_width_impl(ptr, rust_vec_len, data_len),
+		8 => wire__crate__api__model__YoloModelSession_auto_accessor_set_final_metric_threshold_impl(
+			ptr,
+			rust_vec_len,
+			data_len,
+		),
+		9 => wire__crate__api__model__YoloModelSession_auto_accessor_set_slice_iou_threshold_impl(
+			ptr,
+			rust_vec_len,
+			data_len,
+		),
+		12 => wire__crate__api__utils__bounding_box_area_impl(ptr, rust_vec_len, data_len),
+		13 => wire__crate__api__utils__bounding_box_height_impl(ptr, rust_vec_len, data_len),
+		14 => wire__crate__api__utils__bounding_box_intersection_impl(ptr, rust_vec_len, data_len),
+		15 => wire__crate__api__utils__bounding_box_ios_impl(ptr, rust_vec_len, data_len),
+		16 => wire__crate__api__utils__bounding_box_iou_impl(ptr, rust_vec_len, data_len),
+		17 => wire__crate__api__utils__bounding_box_is_valid_impl(ptr, rust_vec_len, data_len),
+		18 => wire__crate__api__utils__bounding_box_metric_impl(ptr, rust_vec_len, data_len),
+		19 => wire__crate__api__utils__bounding_box_new_impl(ptr, rust_vec_len, data_len),
+		20 => wire__crate__api__utils__bounding_box_union_impl(ptr, rust_vec_len, data_len),
+		21 => wire__crate__api__utils__bounding_box_width_impl(ptr, rust_vec_len, data_len),
 		_ => unreachable!(),
 	}
 }
@@ -1065,6 +1246,27 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::utils::BoundingBox>
 	for crate::api::utils::BoundingBox
 {
 	fn into_into_dart(self) -> crate::api::utils::BoundingBox {
+		self
+	}
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::utils::MatchMetric {
+	fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+		match self {
+			Self::IOU => 0.into_dart(),
+			Self::IOS => 1.into_dart(),
+			_ => unreachable!(),
+		}
+	}
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+	for crate::api::utils::MatchMetric
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::utils::MatchMetric>
+	for crate::api::utils::MatchMetric
+{
+	fn into_into_dart(self) -> crate::api::utils::MatchMetric {
 		self
 	}
 }
@@ -1201,6 +1403,13 @@ impl SseEncode for f32 {
 	}
 }
 
+impl SseEncode for i32 {
+	// Codec=Sse (Serialization based), see doc to use other codecs
+	fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+		serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
+	}
+}
+
 impl SseEncode for Vec<u8> {
 	// Codec=Sse (Serialization based), see doc to use other codecs
 	fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1228,6 +1437,22 @@ impl SseEncode for Vec<crate::api::utils::YoloEntityOutput> {
 		for item in self {
 			<crate::api::utils::YoloEntityOutput>::sse_encode(item, serializer);
 		}
+	}
+}
+
+impl SseEncode for crate::api::utils::MatchMetric {
+	// Codec=Sse (Serialization based), see doc to use other codecs
+	fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+		<i32>::sse_encode(
+			match self {
+				crate::api::utils::MatchMetric::IOU => 0,
+				crate::api::utils::MatchMetric::IOS => 1,
+				_ => {
+					unimplemented!("");
+				}
+			},
+			serializer,
+		);
 	}
 }
 
@@ -1283,13 +1508,6 @@ impl SseEncode for crate::api::utils::YoloEntityOutput {
 		<crate::api::utils::BoundingBox>::sse_encode(self.bounding_box, serializer);
 		<u8>::sse_encode(self.class_id, serializer);
 		<f32>::sse_encode(self.confidence, serializer);
-	}
-}
-
-impl SseEncode for i32 {
-	// Codec=Sse (Serialization based), see doc to use other codecs
-	fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-		serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
 	}
 }
 

@@ -38,28 +38,21 @@ abstract class ModelInferenceParameters with _$ModelInferenceParameters {
           ],
         );
       case Resolution.low:
-        int sliceSize1 = math.min(sampleLength ~/ 3.5, 320);
-        int sliceSize2 = math.min(minLength ~/ 2, 640);
+        int sliceSize1 = math.min(minLength ~/ 2, 640);
         return ModelInferenceParameters(
           keepOriginal: true,
           sliceOptions: [
             SliceInputParams(
               sliceWidth: sliceSize1,
               sliceHeight: sliceSize1,
-              overlapWidthRatio: 0.2,
-              overlapHeightRatio: 0.2,
-            ),
-            SliceInputParams(
-              sliceWidth: sliceSize2,
-              sliceHeight: sliceSize2,
-              overlapWidthRatio: 0.15,
-              overlapHeightRatio: 0.15,
+              overlapWidthRatio: 0.25,
+              overlapHeightRatio: 0.25,
             ),
           ],
         );
       case Resolution.medium:
-        int sliceSize1 = sampleLength ~/ 4.5;
-        int sliceSize2 = math.min(sampleLength ~/ 2.5, 640);
+        int sliceSize1 = math.min(minLength ~/ 2.5, 640);
+        int sliceSize2 = sampleLength ~/ 1.5;
         return ModelInferenceParameters(
           keepOriginal: true,
           sliceOptions: [
@@ -78,8 +71,7 @@ abstract class ModelInferenceParameters with _$ModelInferenceParameters {
           ],
         );
       case Resolution.high:
-        int sliceSize1 = sampleLength ~/ 5.5;
-        int sliceSize2 = sampleLength ~/ 3;
+        int sliceSize1 = sampleLength ~/ 3.5;
         return ModelInferenceParameters(
           keepOriginal: true,
           sliceOptions: [
@@ -89,17 +81,10 @@ abstract class ModelInferenceParameters with _$ModelInferenceParameters {
               overlapWidthRatio: 0.175,
               overlapHeightRatio: 0.175,
             ),
-            SliceInputParams(
-              sliceWidth: sliceSize2,
-              sliceHeight: sliceSize2,
-              overlapWidthRatio: 0.15,
-              overlapHeightRatio: 0.15,
-            ),
           ],
         );
       case Resolution.ultraHigh:
-        int sliceSize1 = sampleLength ~/ 6.5;
-        int sliceSize2 = sampleLength ~/ 3.5;
+        int sliceSize1 = sampleLength ~/ 4;
         return ModelInferenceParameters(
           keepOriginal: false,
           sliceOptions: [
@@ -108,12 +93,6 @@ abstract class ModelInferenceParameters with _$ModelInferenceParameters {
               sliceHeight: sliceSize1,
               overlapWidthRatio: 0.15,
               overlapHeightRatio: 0.15,
-            ),
-            SliceInputParams(
-              sliceWidth: sliceSize2,
-              sliceHeight: sliceSize2,
-              overlapWidthRatio: 0.1,
-              overlapHeightRatio: 0.1,
             ),
           ],
         );

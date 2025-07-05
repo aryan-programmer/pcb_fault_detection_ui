@@ -11,8 +11,22 @@ import 'package:pcb_fault_detection_ui/src/models/pcb_components_model.dart';
 import 'package:pcb_fault_detection_ui/src/rust/api/utils.dart';
 import 'package:pcb_fault_detection_ui/src/store/project.store.dart';
 import 'package:pcb_fault_detection_ui/src/utils/snackbar.dart';
-import 'package:pcb_fault_detection_ui/src/widgets/annotated_image.dart';
+import 'package:pcb_fault_detection_ui/src/widgets/resizeable.dart';
 import 'package:provider/provider.dart';
+
+class BenchmarkCardListTile extends StatelessWidget {
+  const BenchmarkCardListTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final store = Provider.of<ProjectStore>(context);
+    return ListTile(
+      title: const Text("Benchmark image"),
+      subtitle: const Text("Tap to change"),
+      onTap: store.onOpenBenchmarkFile,
+    );
+  }
+}
 
 class BenchmarkAccordionPanel extends StatefulObserverWidget {
   final String benchmarkImageFolderName;
@@ -96,32 +110,26 @@ class _BenchmarkAccordionPanelState extends State<BenchmarkAccordionPanel> {
         },
       ),
       child: Card(
-        margin: EdgeInsets.symmetric(vertical: 1.0, horizontal: 16.0),
         elevation: 3,
         clipBehavior: Clip.antiAliasWithSaveLayer,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            FittedBox(
-              fit: BoxFit.contain,
-              child: InteractiveViewer(
-                clipBehavior: Clip.antiAlias,
+            BenchmarkCardListTile(),
+            Expanded(
+              child: ResizeableAnnotatedImage(
                 maxScale: 5,
                 minScale: 0.25,
-                scaleEnabled: true,
-                panEnabled: true,
-                panAxis: PanAxis.free,
-                child: AnnotatedImage(
-                  imagePath: widget.benchmarkImagePath,
-                  boxesBlue: widget.benchmarkImageData.components,
-                  imageWidth: widget.benchmarkImageData.imageWidth,
-                  imageHeight: widget.benchmarkImageData.imageHeight,
-                  thresholdBlue:
-                      widget.benchmarkImageData.componentDetectionThreshold,
-                  thresholdRed: 1,
-                  intToComponent: ComponentClass.INT_TO_COMPONENT,
-                  onRemoveBlue: widget.removeComponent,
-                ),
+                imagePath: widget.benchmarkImagePath,
+                boxesBlue: widget.benchmarkImageData.components,
+                imageWidth: widget.benchmarkImageData.imageWidth,
+                imageHeight: widget.benchmarkImageData.imageHeight,
+                thresholdBlue:
+                    widget.benchmarkImageData.componentDetectionThreshold,
+                thresholdRed: 1,
+                intToComponent: ComponentClass.INT_TO_COMPONENT,
+                onRemoveBlue: widget.removeComponent,
               ),
             ),
             Align(
@@ -129,7 +137,10 @@ class _BenchmarkAccordionPanelState extends State<BenchmarkAccordionPanel> {
               child: Text(widget.benchmarkImageFolderName),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
               child: Focus(
                 onFocusChange: (hasFocus) {
                   if (!hasFocus) {
@@ -145,8 +156,10 @@ class _BenchmarkAccordionPanelState extends State<BenchmarkAccordionPanel> {
                     FilteringTextInputFormatter.digitsOnly,
                     FilteringTextInputFormatter.singleLineFormatter,
                   ],
-                  keyboardType: TextInputType.numberWithOptions(decimal: false),
-                  decoration: InputDecoration(
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: false,
+                  ),
+                  decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.percent),
                     labelText: 'Component Detection Threshold',
                     filled: true,
@@ -155,16 +168,6 @@ class _BenchmarkAccordionPanelState extends State<BenchmarkAccordionPanel> {
                 ),
               ),
             ),
-            // Slider(
-            //   label:
-            //       "Component Threshold: ${(widget.benchmarkImageData.componentDetectionThreshold * 100).round()}%",
-            //   min: 0,
-            //   max: 1,
-            //   divisions: 100,
-            //   value: widget.benchmarkImageData.componentDetectionThreshold,
-            //   onChanged: widget.setThreshold,
-            //   year2023: false,
-            // ),
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: Padding(
@@ -177,7 +180,7 @@ class _BenchmarkAccordionPanelState extends State<BenchmarkAccordionPanel> {
                               onRerunInference(context, model);
                             }
                           : null,
-                      child: Text("Re-run inference"),
+                      child: const Text("Re-run inference"),
                     ),
                   ],
                 ),

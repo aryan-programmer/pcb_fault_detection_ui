@@ -40,7 +40,7 @@ class MainApp extends StatelessWidget {
         Provider<ProjectStore>(create: (_) => ProjectStore()),
       ],
       child: MaterialApp(
-        title: 'PCB Fault Detection UI',
+        title: 'PCB Fault Detection',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
@@ -50,7 +50,7 @@ class MainApp extends StatelessWidget {
             thumbVisibility: WidgetStateProperty.all<bool>(true),
           ),
         ),
-        home: const MainHomePage(title: 'PCB Fault Detection UI'),
+        home: const MainHomePage(title: 'PCB Fault Detection'),
       ),
     );
   }

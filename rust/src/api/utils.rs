@@ -3,7 +3,12 @@ use std::{borrow::Cow, fmt::Display, time::Instant};
 
 use flutter_rust_bridge::frb;
 use rayon::slice::ParallelSliceMut;
-use tracing::Level;
+
+#[derive(Debug, Clone, Copy)]
+pub enum MatchMetric {
+	IOU,
+	IOS,
+}
 
 #[derive(Debug, Clone)]
 pub struct VecU8Wrapper {
@@ -50,7 +55,7 @@ impl BoundingBox {
 
 	#[frb(sync)]
 	pub fn area(&self) -> f32 {
-		(self.width() as f32) * (self.height() as f32)
+		((self.width() as f32) * (self.height() as f32)).abs()
 	}
 
 	#[frb(sync)]
@@ -88,14 +93,43 @@ impl BoundingBox {
 	}
 
 	#[frb(sync)]
+	pub fn ios(&self, box2: &BoundingBox) -> f32 {
+		let intersection = self.intersection(box2);
+		if intersection == 0.0 {
+			return 0.0;
+		}
+
+		let smaller = self.area().min(box2.area());
+		if smaller == 0.0 {
+			0.0
+		} else {
+			intersection / smaller
+		}
+	}
+
+	#[frb(sync)]
+	pub fn metric(&self, box2: &BoundingBox, metric: MatchMetric) -> f32 {
+		match metric {
+			MatchMetric::IOU => self.iou(box2),
+			MatchMetric::IOS => self.ios(box2),
+		}
+	}
+
+	#[frb(sync)]
 	pub fn is_valid(&self) -> bool {
 		self.x2 > self.x1 && self.y2 > self.y1
 	}
 }
 
+pub(crate) fn sort_predictions(predictions: &mut [YoloEntityOutput]) {
+	// Sort by confidence descending
+	predictions.par_sort_unstable_by(|a, b| b.confidence.total_cmp(&a.confidence));
+}
+
 pub(crate) fn non_maximum_suppression(
 	mut boxes: Vec<YoloEntityOutput>,
-	iou_threshold: f32,
+	metric_type: MatchMetric,
+	threshold: f32,
 ) -> Vec<YoloEntityOutput> {
 	// Early return if no boxes are provided
 	if boxes.is_empty() {
@@ -103,13 +137,14 @@ pub(crate) fn non_maximum_suppression(
 	}
 
 	// Sort boxes by confidence descending using sort_unstable_by for better performance
-	boxes.par_sort_unstable_by(|a, b| b.confidence.total_cmp(&a.confidence));
+	sort_predictions(&mut boxes);
 
-	non_maximum_suppression_with_sorted_boxes(boxes, iou_threshold)
+	non_maximum_suppression_with_sorted_boxes(boxes, metric_type, threshold)
 }
 
 pub(crate) fn non_maximum_suppression_with_sorted_boxes(
 	boxes: Vec<YoloEntityOutput>,
+	metric_type: MatchMetric,
 	iou_threshold: f32,
 ) -> Vec<YoloEntityOutput> {
 	let mut result = Vec::with_capacity(boxes.len());
@@ -119,7 +154,10 @@ pub(crate) fn non_maximum_suppression_with_sorted_boxes(
 		// Check if the current box has a high IoU with any box in the result
 		// Using `iter().all()` ensures we short-circuit on the first overlap found
 		if result.iter().all(|selected: &YoloEntityOutput| {
-			selected.bounding_box.iou(&current.bounding_box) < iou_threshold
+			selected
+				.bounding_box
+				.metric(&current.bounding_box, metric_type)
+				< iou_threshold
 		}) {
 			result.push(current);
 		}
@@ -136,8 +174,12 @@ where
 	Self: Sized + Iterator<Item = YoloEntityOutput>,
 {
 	#[frb(ignore)]
-	fn non_maximum_suppression_collect(self, iou_threshold: f32) -> Vec<YoloEntityOutput> {
-		non_maximum_suppression(self.collect(), iou_threshold)
+	fn non_maximum_suppression_collect(
+		self,
+		metric: MatchMetric,
+		threshold: f32,
+	) -> Vec<YoloEntityOutput> {
+		non_maximum_suppression(self.collect(), metric, threshold)
 	}
 }
 
@@ -179,6 +221,7 @@ impl<'a> DropTimer<'a> {
 		}
 	}
 
+	#[allow(dead_code)]
 	pub(crate) fn new(name: Cow<'a, str>) -> Self {
 		Self {
 			start: Instant::now(),

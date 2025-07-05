@@ -63,6 +63,18 @@ mixin _$ImageDataStore on _ImageDataStore, Store {
   }
 
   @override
+  void setIsTracksOnly(bool isTracksOnly) {
+    final _$actionInfo = _$_ImageDataStoreActionController.startAction(
+      name: '_ImageDataStore.setIsTracksOnly',
+    );
+    try {
+      return super.setIsTracksOnly(isTracksOnly);
+    } finally {
+      _$_ImageDataStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setBenchmarkOverlapThreshold(double benchmarkOverlapThreshold) {
     final _$actionInfo = _$_ImageDataStoreActionController.startAction(
       name: '_ImageDataStore.setBenchmarkOverlapThreshold',
@@ -107,6 +119,18 @@ mixin _$ImageDataStore on _ImageDataStore, Store {
     );
     try {
       return super.removeComponent(remVal);
+    } finally {
+      _$_ImageDataStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void deleteImage() {
+    final _$actionInfo = _$_ImageDataStoreActionController.startAction(
+      name: '_ImageDataStore.deleteImage',
+    );
+    try {
+      return super.deleteImage();
     } finally {
       _$_ImageDataStoreActionController.endAction(_$actionInfo);
     }

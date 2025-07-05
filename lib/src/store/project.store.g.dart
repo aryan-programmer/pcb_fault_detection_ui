@@ -134,6 +134,16 @@ mixin _$ProjectStore on _ProjectStore, Store {
     return _$onOpenImageFileAsyncAction.run(() => super.onOpenImageFile());
   }
 
+  late final _$closeProjectAsyncAction = AsyncAction(
+    '_ProjectStore.closeProject',
+    context: context,
+  );
+
+  @override
+  Future<void> closeProject() {
+    return _$closeProjectAsyncAction.run(() => super.closeProject());
+  }
+
   late final _$_ProjectStoreActionController = ActionController(
     name: '_ProjectStore',
     context: context,
@@ -146,6 +156,18 @@ mixin _$ProjectStore on _ProjectStore, Store {
     );
     try {
       return super.saveToFile();
+    } finally {
+      _$_ProjectStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _unloadProject() {
+    final _$actionInfo = _$_ProjectStoreActionController.startAction(
+      name: '_ProjectStore._unloadProject',
+    );
+    try {
+      return super._unloadProject();
     } finally {
       _$_ProjectStoreActionController.endAction(_$actionInfo);
     }
@@ -182,6 +204,18 @@ mixin _$ProjectStore on _ProjectStore, Store {
     );
     try {
       return super.removeBenchmarkImageComponent(remVal);
+    } finally {
+      _$_ProjectStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void removeImage(String imageFolderName) {
+    final _$actionInfo = _$_ProjectStoreActionController.startAction(
+      name: '_ProjectStore.removeImage',
+    );
+    try {
+      return super.removeImage(imageFolderName);
     } finally {
       _$_ProjectStoreActionController.endAction(_$actionInfo);
     }

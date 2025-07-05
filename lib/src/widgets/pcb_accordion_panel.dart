@@ -10,16 +10,34 @@ import 'package:pcb_fault_detection_ui/src/rust/api/utils.dart';
 import 'package:pcb_fault_detection_ui/src/store/image_data.store.dart';
 import 'package:pcb_fault_detection_ui/src/store/project.store.dart';
 import 'package:pcb_fault_detection_ui/src/utils/snackbar.dart';
-import 'package:pcb_fault_detection_ui/src/widgets/annotated_image.dart';
+import 'package:pcb_fault_detection_ui/src/widgets/resizeable.dart';
 import 'package:provider/provider.dart';
+
+class PcbCardListNavTile extends StatelessWidget {
+  final String name;
+
+  const PcbCardListNavTile({super.key, required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(name),
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
+}
 
 enum DisplayMode {
   selfOnly,
   benchmarkAndSelf,
   missingComponentsOnly,
   extraComponentsOnly,
-  nonOverlappingComponents,
-  trackDefectsOnly;
+  nonOverlappingComponents;
 
   String displayString() {
     return switch (this) {
@@ -28,7 +46,6 @@ enum DisplayMode {
       DisplayMode.missingComponentsOnly => "Missing Components Only",
       DisplayMode.extraComponentsOnly => "Spurious/Extra Components Only",
       DisplayMode.nonOverlappingComponents => "All Non-Overlapping Components",
-      DisplayMode.trackDefectsOnly => "Track Defects Only",
     };
   }
 }
@@ -122,154 +139,170 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
 
     late List<YoloEntityOutput>? boxesRed;
     late List<YoloEntityOutput>? boxesBlue;
-    double? boxWidthOverride;
-    bool isTracksMode = false;
+    double? minBoxWidth;
+    double? maxBoxWidth;
+    bool isTracksMode = widget.imageDataStore.imageData.tracksOnly;
 
-    switch (displayMode) {
-      case DisplayMode.selfOnly:
-        boxesRed = widget.imageDataStore.imageData.components;
-        boxesBlue = null;
-      case DisplayMode.benchmarkAndSelf:
-        boxesRed = widget.imageDataStore.imageData.components;
-        boxesBlue = store.benchmarkImageData?.components;
-      case DisplayMode.missingComponentsOnly:
-        boxesRed = null;
-        boxesBlue =
-            widget.imageDataStore.nonOverlappingComponents.missingComponents;
-        boxWidthOverride = 6;
-      case DisplayMode.extraComponentsOnly:
-        boxesRed =
-            widget.imageDataStore.nonOverlappingComponents.extraComponents;
-        boxesBlue = null;
-        boxWidthOverride = 6;
-      case DisplayMode.nonOverlappingComponents:
-        boxesRed =
-            widget.imageDataStore.nonOverlappingComponents.extraComponents;
-        boxesBlue =
-            widget.imageDataStore.nonOverlappingComponents.missingComponents;
-        boxWidthOverride = 6;
-      case DisplayMode.trackDefectsOnly:
-        boxesRed = widget.imageDataStore.imageData.trackDefects;
-        boxesBlue = null;
-        boxWidthOverride = 8;
-        isTracksMode = true;
+    if (isTracksMode) {
+      boxesRed = widget.imageDataStore.imageData.trackDefects;
+      boxesBlue = null;
+      maxBoxWidth = 8;
+      minBoxWidth = 2.5;
+    } else {
+      switch (displayMode) {
+        case DisplayMode.selfOnly:
+          boxesRed = widget.imageDataStore.imageData.components;
+          boxesBlue = null;
+        case DisplayMode.benchmarkAndSelf:
+          boxesRed = widget.imageDataStore.imageData.components;
+          boxesBlue = store.benchmarkImageData?.components;
+        case DisplayMode.missingComponentsOnly:
+          boxesRed = null;
+          boxesBlue =
+              widget.imageDataStore.nonOverlappingComponents.missingComponents;
+          maxBoxWidth = 7;
+        case DisplayMode.extraComponentsOnly:
+          boxesRed =
+              widget.imageDataStore.nonOverlappingComponents.extraComponents;
+          boxesBlue = null;
+          maxBoxWidth = 7;
+        case DisplayMode.nonOverlappingComponents:
+          boxesRed =
+              widget.imageDataStore.nonOverlappingComponents.extraComponents;
+          boxesBlue =
+              widget.imageDataStore.nonOverlappingComponents.missingComponents;
+          maxBoxWidth = 7;
+      }
     }
     final resultCard = Card(
-      margin: EdgeInsets.symmetric(vertical: 1.0, horizontal: 16.0),
       elevation: 3,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FittedBox(
-            fit: BoxFit.contain,
-            child: InteractiveViewer(
-              clipBehavior: Clip.antiAlias,
+          PcbCardListNavTile(name: widget.imageFolderName),
+          Expanded(
+            child: ResizeableAnnotatedImage(
               maxScale: 5,
               minScale: 0.25,
-              scaleEnabled: true,
-              panEnabled: true,
-              panAxis: PanAxis.free,
-              child: AnnotatedImage(
-                imagePath: widget.imagePath,
-                boxesRed: boxesRed,
-                boxesBlue: boxesBlue,
-                imageWidth: widget.imageDataStore.imageData.imageWidth,
-                imageHeight: widget.imageDataStore.imageData.imageHeight,
-                thresholdRed:
-                    store.benchmarkImageData?.componentDetectionThreshold ?? 1,
-                thresholdBlue:
-                    store.benchmarkImageData?.componentDetectionThreshold ?? 1,
-                intToComponent: isTracksMode
-                    ? TrackDefectClasses.INT_TO_COMPONENT
-                    : ComponentClass.INT_TO_COMPONENT,
-                onRemoveRed: widget.imageDataStore.removeComponent,
-                onRemoveBlue: store.removeBenchmarkImageComponent,
-                boxWidthOverride: boxWidthOverride,
-              ),
+              imagePath: widget.imagePath,
+              boxesRed: boxesRed,
+              boxesBlue: boxesBlue,
+              imageWidth: widget.imageDataStore.imageData.imageWidth,
+              imageHeight: widget.imageDataStore.imageData.imageHeight,
+              thresholdRed: isTracksMode
+                  ? widget
+                        .imageDataStore
+                        .imageData
+                        .trackDefectDetectionThreshold
+                  : (store.benchmarkImageData?.componentDetectionThreshold ??
+                        1),
+              thresholdBlue:
+                  store.benchmarkImageData?.componentDetectionThreshold ?? 1,
+              intToComponent: isTracksMode
+                  ? TrackDefectClasses.INT_TO_COMPONENT
+                  : ComponentClass.INT_TO_COMPONENT,
+              onRemoveRed: widget.imageDataStore.removeComponent,
+              onRemoveBlue: store.removeBenchmarkImageComponent,
+              minBoxWidth: minBoxWidth,
+              maxBoxWidth: maxBoxWidth,
             ),
           ),
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   child: Text(
-          //     "Component Bounding Box Threshold:",
-          //     textAlign: TextAlign.start,
-          //   ),
-          // ),
-          // Slider(
-          //   label:
-          //       "${widget.imageDataStore.imageData.componentDetectionThreshold}",
-          //   min: 0,
-          //   max: 1,
-          //   divisions: 100,
-          //   value: widget.imageDataStore.imageData.componentDetectionThreshold,
-          //   onChanged: widget.imageDataStore.setComponentDetectionThreshold,
-          //   year2023: false,
-          // ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Benchmark Overlap Threshold:",
-              textAlign: TextAlign.start,
-            ),
-          ),
-          Slider(
-            label:
-                "${(widget.imageDataStore.imageData.benchmarkOverlapThreshold * 100).round()}%",
-            min: 0,
-            max: 1,
-            divisions: 100,
-            value: widget.imageDataStore.imageData.benchmarkOverlapThreshold,
-            onChanged: widget.imageDataStore.setBenchmarkOverlapThreshold,
-            year2023: false,
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: OverflowBar(
-                alignment: MainAxisAlignment.spaceAround,
-                children: [
-                  DropdownButton<DisplayMode>(
-                    value: displayMode,
-                    icon: const Icon(Icons.arrow_downward),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SwitchListTile(
+                  value: isTracksMode,
+                  onChanged: widget.imageDataStore.setIsTracksOnly,
+                  title: Text("Is this a PCB track image?"),
+                  visualDensity: VisualDensity.compact,
+                ),
+                Text(
+                  isTracksMode
+                      ? "Track Defect Threshold:"
+                      : "Benchmark Overlap Threshold:",
+                  textAlign: TextAlign.start,
+                ),
+                isTracksMode
+                    ? Slider(
+                        label:
+                            "${(widget.imageDataStore.imageData.trackDefectDetectionThreshold * 100).round()}%",
+                        min: 0,
+                        max: 1,
+                        divisions: 100,
+                        value: widget
+                            .imageDataStore
+                            .imageData
+                            .trackDefectDetectionThreshold,
+                        onChanged: widget
+                            .imageDataStore
+                            .setTrackDefectDetectionThreshold,
+                        year2023: false,
+                      )
+                    : Slider(
+                        label:
+                            "${(widget.imageDataStore.imageData.benchmarkOverlapThreshold * 100).round()}%",
+                        min: 0,
+                        max: 1,
+                        divisions: 100,
+                        value: widget
+                            .imageDataStore
+                            .imageData
+                            .benchmarkOverlapThreshold,
+                        onChanged:
+                            widget.imageDataStore.setBenchmarkOverlapThreshold,
+                        year2023: false,
+                      ),
+                OverflowBar(
+                  alignment: isTracksMode
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (!isTracksMode)
+                      DropdownButton<DisplayMode>(
+                        value: displayMode,
+                        icon: const Icon(Icons.arrow_downward),
+                        underline: Container(
+                          height: 2,
+                          color: Colors.deepPurpleAccent,
+                        ),
+                        onChanged: (DisplayMode? value) {
+                          setState(() {
+                            displayMode = value!;
+                          });
+                        },
+                        items: DisplayMode.values
+                            .map<DropdownMenuItem<DisplayMode>>((
+                              DisplayMode value,
+                            ) {
+                              return DropdownMenuItem<DisplayMode>(
+                                value: value,
+                                child: Text(value.displayString()),
+                              );
+                            })
+                            .toList(),
+                      ),
+                    FilledButton.tonal(
+                      onPressed: isTracksMode
+                          ? (tracksModel != null
+                                ? () => onRunInferenceForTrackDefects(
+                                    context,
+                                    tracksModel,
+                                  )
+                                : null)
+                          : (componentsModel != null
+                                ? () => onRunInferenceForComponents(
+                                    context,
+                                    componentsModel,
+                                  )
+                                : null),
+                      child: Text("Re-run inference"),
                     ),
-                    onChanged: (DisplayMode? value) {
-                      setState(() {
-                        displayMode = value!;
-                      });
-                    },
-                    items: DisplayMode.values
-                        .map<DropdownMenuItem<DisplayMode>>((
-                          DisplayMode value,
-                        ) {
-                          return DropdownMenuItem<DisplayMode>(
-                            value: value,
-                            child: Text(value.displayString()),
-                          );
-                        })
-                        .toList(),
-                  ),
-                  FilledButton.tonal(
-                    onPressed: isTracksMode
-                        ? (tracksModel != null
-                              ? () => onRunInferenceForTrackDefects(
-                                  context,
-                                  tracksModel,
-                                )
-                              : null)
-                        : (componentsModel != null
-                              ? () => onRunInferenceForComponents(
-                                  context,
-                                  componentsModel,
-                                )
-                              : null),
-                    child: Text("Re-run inference"),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

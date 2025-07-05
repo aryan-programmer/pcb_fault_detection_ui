@@ -20,9 +20,10 @@ class PcbComponentsModel {
       )).buffer.asUint8List();
       var yoloModelSession = await YoloModelSession.fromMemory(
         bytes: VecU8Wrapper(v: modelBytes),
-        numLabels: BigInt.from(22),
-        iouThreshold: 0.3,
+        finalMetricThreshold: 0.5,
+        finalMetric: MatchMetric.ios,
         sliceIouThreshold: 0.5,
+        confidenceThreshold: 0.01,
       );
       return PcbComponentsModel._(yoloModelSession);
     } finally {

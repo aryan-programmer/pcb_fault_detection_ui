@@ -90,6 +90,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double dco_decode_f_32(dynamic raw);
 
   @protected
+  int dco_decode_i_32(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
@@ -97,6 +100,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<YoloEntityOutput> dco_decode_list_yolo_entity_output(dynamic raw);
+
+  @protected
+  MatchMetric dco_decode_match_metric(dynamic raw);
 
   @protected
   SliceInputParams dco_decode_slice_input_params(dynamic raw);
@@ -182,6 +188,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double sse_decode_f_32(SseDeserializer deserializer);
 
   @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
@@ -193,6 +202,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<YoloEntityOutput> sse_decode_list_yolo_entity_output(
     SseDeserializer deserializer,
   );
+
+  @protected
+  MatchMetric sse_decode_match_metric(SseDeserializer deserializer);
 
   @protected
   SliceInputParams sse_decode_slice_input_params(SseDeserializer deserializer);
@@ -214,9 +226,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   YoloEntityOutput sse_decode_yolo_entity_output(SseDeserializer deserializer);
-
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
   void
@@ -292,6 +301,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_f_32(double self, SseSerializer serializer);
 
   @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -308,6 +320,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     List<YoloEntityOutput> self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_match_metric(MatchMetric self, SseSerializer serializer);
 
   @protected
   void sse_encode_slice_input_params(
@@ -335,9 +350,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     YoloEntityOutput self,
     SseSerializer serializer,
   );
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
 }
 
 // Section: wire_class

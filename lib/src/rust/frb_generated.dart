@@ -67,7 +67,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.10.0';
 
   @override
-  int get rustContentHash => -345365251;
+  int get rustContentHash => 2037739718;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -80,11 +80,15 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 abstract class RustLibApi extends BaseApi {
   String crateApiErrorYoloErrorToString({required YoloError that});
 
-  double crateApiModelYoloModelSessionAutoAccessorGetIouThreshold({
+  double crateApiModelYoloModelSessionAutoAccessorGetConfidenceThreshold({
     required YoloModelSession that,
   });
 
-  BigInt crateApiModelYoloModelSessionAutoAccessorGetNumLabels({
+  MatchMetric crateApiModelYoloModelSessionAutoAccessorGetFinalMetric({
+    required YoloModelSession that,
+  });
+
+  double crateApiModelYoloModelSessionAutoAccessorGetFinalMetricThreshold({
     required YoloModelSession that,
   });
 
@@ -92,14 +96,19 @@ abstract class RustLibApi extends BaseApi {
     required YoloModelSession that,
   });
 
-  void crateApiModelYoloModelSessionAutoAccessorSetIouThreshold({
+  void crateApiModelYoloModelSessionAutoAccessorSetConfidenceThreshold({
     required YoloModelSession that,
-    required double iouThreshold,
+    required double confidenceThreshold,
   });
 
-  void crateApiModelYoloModelSessionAutoAccessorSetNumLabels({
+  void crateApiModelYoloModelSessionAutoAccessorSetFinalMetric({
     required YoloModelSession that,
-    required BigInt numLabels,
+    required MatchMetric finalMetric,
+  });
+
+  void crateApiModelYoloModelSessionAutoAccessorSetFinalMetricThreshold({
+    required YoloModelSession that,
+    required double finalMetricThreshold,
   });
 
   void crateApiModelYoloModelSessionAutoAccessorSetSliceIouThreshold({
@@ -109,9 +118,10 @@ abstract class RustLibApi extends BaseApi {
 
   Future<YoloModelSession> crateApiModelYoloModelSessionFromMemory({
     required VecU8Wrapper bytes,
-    required BigInt numLabels,
-    required double iouThreshold,
+    required MatchMetric finalMetric,
+    required double finalMetricThreshold,
     required double sliceIouThreshold,
+    required double confidenceThreshold,
   });
 
   Future<List<YoloEntityOutput>> crateApiModelYoloModelSessionSlicedInference({
@@ -132,12 +142,23 @@ abstract class RustLibApi extends BaseApi {
     required BoundingBox box2,
   });
 
+  double crateApiUtilsBoundingBoxIos({
+    required BoundingBox that,
+    required BoundingBox box2,
+  });
+
   double crateApiUtilsBoundingBoxIou({
     required BoundingBox that,
     required BoundingBox box2,
   });
 
   bool crateApiUtilsBoundingBoxIsValid({required BoundingBox that});
+
+  double crateApiUtilsBoundingBoxMetric({
+    required BoundingBox that,
+    required BoundingBox box2,
+    required MatchMetric metric,
+  });
 
   BoundingBox crateApiUtilsBoundingBoxNew({
     required int x1,
@@ -211,7 +232,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  double crateApiModelYoloModelSessionAutoAccessorGetIouThreshold({
+  double crateApiModelYoloModelSessionAutoAccessorGetConfidenceThreshold({
     required YoloModelSession that,
   }) {
     return handler.executeSync(
@@ -229,7 +250,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: null,
         ),
         constMeta:
-            kCrateApiModelYoloModelSessionAutoAccessorGetIouThresholdConstMeta,
+            kCrateApiModelYoloModelSessionAutoAccessorGetConfidenceThresholdConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
@@ -237,14 +258,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta
-  get kCrateApiModelYoloModelSessionAutoAccessorGetIouThresholdConstMeta =>
+  get kCrateApiModelYoloModelSessionAutoAccessorGetConfidenceThresholdConstMeta =>
       const TaskConstMeta(
-        debugName: "YoloModelSession_auto_accessor_get_iou_threshold",
+        debugName: "YoloModelSession_auto_accessor_get_confidence_threshold",
         argNames: ["that"],
       );
 
   @override
-  BigInt crateApiModelYoloModelSessionAutoAccessorGetNumLabels({
+  MatchMetric crateApiModelYoloModelSessionAutoAccessorGetFinalMetric({
     required YoloModelSession that,
   }) {
     return handler.executeSync(
@@ -258,11 +279,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_usize,
+          decodeSuccessData: sse_decode_match_metric,
           decodeErrorData: null,
         ),
         constMeta:
-            kCrateApiModelYoloModelSessionAutoAccessorGetNumLabelsConstMeta,
+            kCrateApiModelYoloModelSessionAutoAccessorGetFinalMetricConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
@@ -270,9 +291,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta
-  get kCrateApiModelYoloModelSessionAutoAccessorGetNumLabelsConstMeta =>
+  get kCrateApiModelYoloModelSessionAutoAccessorGetFinalMetricConstMeta =>
       const TaskConstMeta(
-        debugName: "YoloModelSession_auto_accessor_get_num_labels",
+        debugName: "YoloModelSession_auto_accessor_get_final_metric",
+        argNames: ["that"],
+      );
+
+  @override
+  double crateApiModelYoloModelSessionAutoAccessorGetFinalMetricThreshold({
+    required YoloModelSession that,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerYoloModelSession(
+            that,
+            serializer,
+          );
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_f_32,
+          decodeErrorData: null,
+        ),
+        constMeta:
+            kCrateApiModelYoloModelSessionAutoAccessorGetFinalMetricThresholdConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiModelYoloModelSessionAutoAccessorGetFinalMetricThresholdConstMeta =>
+      const TaskConstMeta(
+        debugName: "YoloModelSession_auto_accessor_get_final_metric_threshold",
         argNames: ["that"],
       );
 
@@ -288,7 +342,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_f_32,
@@ -310,9 +364,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  void crateApiModelYoloModelSessionAutoAccessorSetIouThreshold({
+  void crateApiModelYoloModelSessionAutoAccessorSetConfidenceThreshold({
     required YoloModelSession that,
-    required double iouThreshold,
+    required double confidenceThreshold,
   }) {
     return handler.executeSync(
       SyncTask(
@@ -322,42 +376,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          sse_encode_f_32(iouThreshold, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: null,
-        ),
-        constMeta:
-            kCrateApiModelYoloModelSessionAutoAccessorSetIouThresholdConstMeta,
-        argValues: [that, iouThreshold],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta
-  get kCrateApiModelYoloModelSessionAutoAccessorSetIouThresholdConstMeta =>
-      const TaskConstMeta(
-        debugName: "YoloModelSession_auto_accessor_set_iou_threshold",
-        argNames: ["that", "iouThreshold"],
-      );
-
-  @override
-  void crateApiModelYoloModelSessionAutoAccessorSetNumLabels({
-    required YoloModelSession that,
-    required BigInt numLabels,
-  }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerYoloModelSession(
-            that,
-            serializer,
-          );
-          sse_encode_usize(numLabels, serializer);
+          sse_encode_f_32(confidenceThreshold, serializer);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
         },
         codec: SseCodec(
@@ -365,18 +384,88 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: null,
         ),
         constMeta:
-            kCrateApiModelYoloModelSessionAutoAccessorSetNumLabelsConstMeta,
-        argValues: [that, numLabels],
+            kCrateApiModelYoloModelSessionAutoAccessorSetConfidenceThresholdConstMeta,
+        argValues: [that, confidenceThreshold],
         apiImpl: this,
       ),
     );
   }
 
   TaskConstMeta
-  get kCrateApiModelYoloModelSessionAutoAccessorSetNumLabelsConstMeta =>
+  get kCrateApiModelYoloModelSessionAutoAccessorSetConfidenceThresholdConstMeta =>
       const TaskConstMeta(
-        debugName: "YoloModelSession_auto_accessor_set_num_labels",
-        argNames: ["that", "numLabels"],
+        debugName: "YoloModelSession_auto_accessor_set_confidence_threshold",
+        argNames: ["that", "confidenceThreshold"],
+      );
+
+  @override
+  void crateApiModelYoloModelSessionAutoAccessorSetFinalMetric({
+    required YoloModelSession that,
+    required MatchMetric finalMetric,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerYoloModelSession(
+            that,
+            serializer,
+          );
+          sse_encode_match_metric(finalMetric, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta:
+            kCrateApiModelYoloModelSessionAutoAccessorSetFinalMetricConstMeta,
+        argValues: [that, finalMetric],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiModelYoloModelSessionAutoAccessorSetFinalMetricConstMeta =>
+      const TaskConstMeta(
+        debugName: "YoloModelSession_auto_accessor_set_final_metric",
+        argNames: ["that", "finalMetric"],
+      );
+
+  @override
+  void crateApiModelYoloModelSessionAutoAccessorSetFinalMetricThreshold({
+    required YoloModelSession that,
+    required double finalMetricThreshold,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerYoloModelSession(
+            that,
+            serializer,
+          );
+          sse_encode_f_32(finalMetricThreshold, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta:
+            kCrateApiModelYoloModelSessionAutoAccessorSetFinalMetricThresholdConstMeta,
+        argValues: [that, finalMetricThreshold],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiModelYoloModelSessionAutoAccessorSetFinalMetricThresholdConstMeta =>
+      const TaskConstMeta(
+        debugName: "YoloModelSession_auto_accessor_set_final_metric_threshold",
+        argNames: ["that", "finalMetricThreshold"],
       );
 
   @override
@@ -393,7 +482,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             serializer,
           );
           sse_encode_f_32(sliceIouThreshold, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
@@ -417,22 +506,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @override
   Future<YoloModelSession> crateApiModelYoloModelSessionFromMemory({
     required VecU8Wrapper bytes,
-    required BigInt numLabels,
-    required double iouThreshold,
+    required MatchMetric finalMetric,
+    required double finalMetricThreshold,
     required double sliceIouThreshold,
+    required double confidenceThreshold,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_vec_u_8_wrapper(bytes, serializer);
-          sse_encode_usize(numLabels, serializer);
-          sse_encode_f_32(iouThreshold, serializer);
+          sse_encode_match_metric(finalMetric, serializer);
+          sse_encode_f_32(finalMetricThreshold, serializer);
           sse_encode_f_32(sliceIouThreshold, serializer);
+          sse_encode_f_32(confidenceThreshold, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 8,
+            funcId: 10,
             port: port_,
           );
         },
@@ -443,7 +534,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerYoloError,
         ),
         constMeta: kCrateApiModelYoloModelSessionFromMemoryConstMeta,
-        argValues: [bytes, numLabels, iouThreshold, sliceIouThreshold],
+        argValues: [
+          bytes,
+          finalMetric,
+          finalMetricThreshold,
+          sliceIouThreshold,
+          confidenceThreshold,
+        ],
         apiImpl: this,
       ),
     );
@@ -452,7 +549,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiModelYoloModelSessionFromMemoryConstMeta =>
       const TaskConstMeta(
         debugName: "YoloModelSession_from_memory",
-        argNames: ["bytes", "numLabels", "iouThreshold", "sliceIouThreshold"],
+        argNames: [
+          "bytes",
+          "finalMetric",
+          "finalMetricThreshold",
+          "sliceIouThreshold",
+          "confidenceThreshold",
+        ],
       );
 
   @override
@@ -480,7 +583,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 9,
+            funcId: 11,
             port: port_,
           );
         },
@@ -523,7 +626,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_bounding_box(that, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 12)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_f_32,
@@ -546,7 +649,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_bounding_box(that, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 13)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_u_32,
@@ -573,7 +676,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_bounding_box(that, serializer);
           sse_encode_box_autoadd_bounding_box(box2, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 12)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_f_32,
@@ -593,6 +696,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  double crateApiUtilsBoundingBoxIos({
+    required BoundingBox that,
+    required BoundingBox box2,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_bounding_box(that, serializer);
+          sse_encode_box_autoadd_bounding_box(box2, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 15)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_f_32,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiUtilsBoundingBoxIosConstMeta,
+        argValues: [that, box2],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUtilsBoundingBoxIosConstMeta =>
+      const TaskConstMeta(
+        debugName: "bounding_box_ios",
+        argNames: ["that", "box2"],
+      );
+
+  @override
   double crateApiUtilsBoundingBoxIou({
     required BoundingBox that,
     required BoundingBox box2,
@@ -603,7 +736,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_bounding_box(that, serializer);
           sse_encode_box_autoadd_bounding_box(box2, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 13)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 16)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_f_32,
@@ -629,7 +762,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_bounding_box(that, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -649,6 +782,38 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  double crateApiUtilsBoundingBoxMetric({
+    required BoundingBox that,
+    required BoundingBox box2,
+    required MatchMetric metric,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_bounding_box(that, serializer);
+          sse_encode_box_autoadd_bounding_box(box2, serializer);
+          sse_encode_match_metric(metric, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_f_32,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiUtilsBoundingBoxMetricConstMeta,
+        argValues: [that, box2, metric],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUtilsBoundingBoxMetricConstMeta =>
+      const TaskConstMeta(
+        debugName: "bounding_box_metric",
+        argNames: ["that", "box2", "metric"],
+      );
+
+  @override
   BoundingBox crateApiUtilsBoundingBoxNew({
     required int x1,
     required int y1,
@@ -663,7 +828,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_u_32(y1, serializer);
           sse_encode_u_32(x2, serializer);
           sse_encode_u_32(y2, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 15)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bounding_box,
@@ -693,7 +858,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_bounding_box(that, serializer);
           sse_encode_box_autoadd_bounding_box(box2, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 16)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_f_32,
@@ -719,7 +884,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_bounding_box(that, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_u_32,
@@ -744,7 +909,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 18,
+            funcId: 22,
             port: port_,
           );
         },
@@ -886,6 +1051,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
@@ -901,6 +1072,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<YoloEntityOutput> dco_decode_list_yolo_entity_output(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_yolo_entity_output).toList();
+  }
+
+  @protected
+  MatchMetric dco_decode_match_metric(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MatchMetric.values[raw as int];
   }
 
   @protected
@@ -1093,6 +1270,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
@@ -1125,6 +1308,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       ans_.add(sse_decode_yolo_entity_output(deserializer));
     }
     return ans_;
+  }
+
+  @protected
+  MatchMetric sse_decode_match_metric(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return MatchMetric.values[inner];
   }
 
   @protected
@@ -1183,12 +1373,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       classId: var_classId,
       confidence: var_confidence,
     );
-  }
-
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getInt32();
   }
 
   @protected
@@ -1328,6 +1512,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -1359,6 +1549,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     for (final item in self) {
       sse_encode_yolo_entity_output(item, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_match_metric(MatchMetric self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
@@ -1412,12 +1608,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_u_8(self.classId, serializer);
     sse_encode_f_32(self.confidence, serializer);
   }
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putInt32(self);
-  }
 }
 
 @sealed
@@ -1466,27 +1656,40 @@ class YoloModelSessionImpl extends RustOpaque implements YoloModelSession {
         .rust_arc_decrement_strong_count_YoloModelSessionPtr,
   );
 
-  double get iouThreshold => RustLib.instance.api
-      .crateApiModelYoloModelSessionAutoAccessorGetIouThreshold(that: this);
+  double get confidenceThreshold => RustLib.instance.api
+      .crateApiModelYoloModelSessionAutoAccessorGetConfidenceThreshold(
+        that: this,
+      );
 
-  BigInt get numLabels => RustLib.instance.api
-      .crateApiModelYoloModelSessionAutoAccessorGetNumLabels(that: this);
+  MatchMetric get finalMetric => RustLib.instance.api
+      .crateApiModelYoloModelSessionAutoAccessorGetFinalMetric(that: this);
+
+  double get finalMetricThreshold => RustLib.instance.api
+      .crateApiModelYoloModelSessionAutoAccessorGetFinalMetricThreshold(
+        that: this,
+      );
 
   double get sliceIouThreshold => RustLib.instance.api
       .crateApiModelYoloModelSessionAutoAccessorGetSliceIouThreshold(
         that: this,
       );
 
-  set iouThreshold(double iouThreshold) => RustLib.instance.api
-      .crateApiModelYoloModelSessionAutoAccessorSetIouThreshold(
+  set confidenceThreshold(double confidenceThreshold) => RustLib.instance.api
+      .crateApiModelYoloModelSessionAutoAccessorSetConfidenceThreshold(
         that: this,
-        iouThreshold: iouThreshold,
+        confidenceThreshold: confidenceThreshold,
       );
 
-  set numLabels(BigInt numLabels) => RustLib.instance.api
-      .crateApiModelYoloModelSessionAutoAccessorSetNumLabels(
+  set finalMetric(MatchMetric finalMetric) => RustLib.instance.api
+      .crateApiModelYoloModelSessionAutoAccessorSetFinalMetric(
         that: this,
-        numLabels: numLabels,
+        finalMetric: finalMetric,
+      );
+
+  set finalMetricThreshold(double finalMetricThreshold) => RustLib.instance.api
+      .crateApiModelYoloModelSessionAutoAccessorSetFinalMetricThreshold(
+        that: this,
+        finalMetricThreshold: finalMetricThreshold,
       );
 
   set sliceIouThreshold(double sliceIouThreshold) => RustLib.instance.api

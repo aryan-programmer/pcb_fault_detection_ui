@@ -59,12 +59,17 @@ abstract class _ImageDataStore with Store {
     imageData = imageData.copyWith(components: components);
   }
 
-  // @action
-  // void setComponentDetectionThreshold(double componentDetectionThreshold) {
-  //   imageData = imageData.copyWith(
-  //     componentDetectionThreshold: componentDetectionThreshold,
-  //   );
-  // }
+  @action
+  void setIsTracksOnly(bool isTracksOnly) {
+    if (isTracksOnly) {
+      imageData = imageData.copyWith(tracksOnly: isTracksOnly, components: []);
+    } else {
+      imageData = imageData.copyWith(
+        tracksOnly: isTracksOnly,
+        trackDefects: [],
+      );
+    }
+  }
 
   @action
   void setBenchmarkOverlapThreshold(double benchmarkOverlapThreshold) {
@@ -93,5 +98,10 @@ abstract class _ImageDataStore with Store {
     components = List.of(components);
     components.removeAt(idx);
     setComponents(components);
+  }
+
+  @action
+  void deleteImage() {
+    parent.removeImage(folderName);
   }
 }

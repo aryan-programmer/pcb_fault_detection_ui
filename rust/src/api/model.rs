@@ -23,7 +23,7 @@ use crate::api::{
 	error::YoloError,
 	slicing::{get_slice_bboxes, SliceData, SliceInputParams},
 	utils::{
-		error, info, non_maximum_suppression, BoundingBox, DropTimer,
+		error, info, non_maximum_suppression, BoundingBox, DropTimer, MatchMetric,
 		NonMaxSuppressionIteratorAdapterExtension, VecU8Wrapper, YoloEntityOutput,
 		YOLO_INPUT_IMAGE_HEIGHT, YOLO_INPUT_IMAGE_WIDTH,
 	},
@@ -35,31 +35,35 @@ use crate::api::{
 pub struct YoloModelSession {
 	#[derivative(Debug = "ignore")]
 	pub(crate) session: Arc<Mutex<ort::session::Session>>,
-	pub num_labels: usize,
-	pub iou_threshold: f32,
+	pub final_metric: MatchMetric,
+	pub final_metric_threshold: f32,
 	pub slice_iou_threshold: f32,
+	pub confidence_threshold: f32,
 }
 
 impl YoloModelSession {
 	pub(crate) fn new(
 		session: ort::session::Session,
-		num_labels: usize,
-		iou_threshold: f32,
+		final_metric: MatchMetric,
+		final_metric_threshold: f32,
 		slice_iou_threshold: f32,
+		confidence_threshold: f32,
 	) -> Self {
 		Self {
 			session: Arc::new(Mutex::new(session)),
-			num_labels,
-			iou_threshold,
+			final_metric,
+			final_metric_threshold,
 			slice_iou_threshold,
+			confidence_threshold,
 		}
 	}
 
 	pub fn from_memory(
 		bytes: VecU8Wrapper,
-		num_labels: usize,
-		iou_threshold: f32,
+		final_metric: MatchMetric,
+		final_metric_threshold: f32,
 		slice_iou_threshold: f32,
+		confidence_threshold: f32,
 	) -> Result<Self, YoloError> {
 		let mut session_builder = ort::session::Session::builder()
 			.map_err(|err| {
@@ -108,9 +112,10 @@ impl YoloModelSession {
 
 		Ok(Self::new(
 			session,
-			num_labels,
-			iou_threshold,
+			final_metric,
+			final_metric_threshold,
 			slice_iou_threshold,
+			confidence_threshold,
 		))
 	}
 
@@ -168,35 +173,37 @@ impl YoloModelSession {
 					num_slices.fetch_add(scaled_slice_bboxes.len() as u32, Ordering::Relaxed);
 
 					// let slice_to_tensor_number = &slice_to_tensor_number;
-					scaled_slice_bboxes.into_par_iter().map(move |scaled_slice_bbox| {
-						// let id = slice_to_tensor_number.fetch_add(1, Ordering::Relaxed);
-						// let _t = DropTimer::new_with_log(format!("Image Slice to Array: {id}").into());
+					scaled_slice_bboxes
+						.into_par_iter()
+						.map(move |scaled_slice_bbox| {
+							// let id = slice_to_tensor_number.fetch_add(1, Ordering::Relaxed);
+							// let _t = DropTimer::new_with_log(format!("Image Slice to Array: {id}").into());
 
-						let BoundingBox { x1, x2, y1, y2 } = scaled_slice_bbox;
-						let original_slice_bbox = BoundingBox {
-							x1: x1 * slice_width / 640,
-							y1: y1 * slice_height / 640,
-							x2: x2 * slice_width / 640,
-							y2: y2 * slice_height / 640,
-						};
+							let BoundingBox { x1, x2, y1, y2 } = scaled_slice_bbox;
+							let original_slice_bbox = BoundingBox {
+								x1: x1 * slice_width / 640,
+								y1: y1 * slice_height / 640,
+								x2: x2 * slice_width / 640,
+								y2: y2 * slice_height / 640,
+							};
 
-						let flat_samples_u8 = scaled_image.as_flat_samples_u8().unwrap();
-						let full_tensor_view_u8 =
-							flat_samples_into_ndarray(&flat_samples_u8, scaled_width, scaled_height);
-						let x1 = x1 as usize;
-						let y1 = y1 as usize;
-						let box_w = scaled_slice_bbox.width() as usize;
-						let box_h = scaled_slice_bbox.height() as usize;
-						let part_view =
-							full_tensor_view_u8.slice(s![.., .., y1..(y1 + box_h), x1..(x1 + box_w)]);
-						let tensor = u8_color_array_to_f32_norm(part_view);
+							let flat_samples_u8 = scaled_image.as_flat_samples_u8().unwrap();
+							let full_tensor_view_u8 =
+								flat_samples_into_ndarray(&flat_samples_u8, scaled_width, scaled_height);
+							let x1 = x1 as usize;
+							let y1 = y1 as usize;
+							let box_w = scaled_slice_bbox.width() as usize;
+							let box_h = scaled_slice_bbox.height() as usize;
+							let part_view =
+								full_tensor_view_u8.slice(s![.., .., y1..(y1 + box_h), x1..(x1 + box_w)]);
+							let tensor = u8_color_array_to_f32_norm(part_view);
 
-						SliceData {
-							tensor,
-							original_bbox: original_slice_bbox,
-							// id,
-						}
-					})
+							SliceData {
+								tensor,
+								original_bbox: original_slice_bbox,
+								// id,
+							}
+						})
 				},
 			)
 			.chain(
@@ -275,6 +282,10 @@ impl YoloModelSession {
 									.map(|(index, value)| (index, *value))
 									.reduce(|accum, row| if row.1 > accum.1 { row } else { accum })?;
 
+								if prob < self.confidence_threshold {
+									return None;
+								}
+
 								let xc = row[0_usize] / (YOLO_INPUT_IMAGE_WIDTH as f32) * (slice_w as f32);
 								let yc = row[1_usize] / (YOLO_INPUT_IMAGE_HEIGHT as f32) * (slice_h as f32);
 								let w = row[2_usize] / (YOLO_INPUT_IMAGE_WIDTH as f32) * (slice_w as f32);
@@ -291,7 +302,7 @@ impl YoloModelSession {
 									confidence: prob,
 								})
 							})
-							.non_maximum_suppression_collect(self.slice_iou_threshold)
+							.non_maximum_suppression_collect(self.final_metric, self.slice_iou_threshold)
 							.into_par_iter(),
 					)
 				},
@@ -309,7 +320,18 @@ impl YoloModelSession {
 		info!("Number of slices: {0}", num_slices.load(Ordering::Relaxed));
 
 		// Thresholding is done by the UI layer.
-		Ok(non_maximum_suppression(res, self.iou_threshold))
+		Ok(non_maximum_suppression(
+			res,
+			self.final_metric,
+			self.final_metric_threshold,
+		))
+
+		// Ok(nmm_process(
+		// 	res,
+		// 	self.final_metric_threshold,
+		// 	self.final_metric,
+		// 	false,
+		// ))
 	}
 }
 

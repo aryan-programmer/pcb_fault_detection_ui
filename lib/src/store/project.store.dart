@@ -66,7 +66,8 @@ abstract class _ProjectStore with Store {
     }
 
     final benchmarkDataFolder = projectData.benchmarkDataFolder;
-    if (benchmarkDataFolder != null && benchmarkImageData != benchmarkImageDataOnLastStore) {
+    if (benchmarkDataFolder != null &&
+        benchmarkImageData != benchmarkImageDataOnLastStore) {
       final dataFile = File(
         path.join(projectFolder, benchmarkDataFolder, IMAGE_DATA_FILE_NAME),
       );
@@ -102,10 +103,12 @@ abstract class _ProjectStore with Store {
 
   @action
   Future<void> _loadProjectFrom(String folder) async {
-    benchmarkImageData = null;
-    this.images.clear();
-    projectData = null;
-    projectFolder = null;
+    if (!Directory(folder).existsSync()) {
+      await closeProject();
+      return;
+    }
+
+    _unloadProject();
 
     final file = File(path.join(folder, PROJECT_DATA_FILE_NAME));
     if (file.existsSync()) {
@@ -125,10 +128,14 @@ abstract class _ProjectStore with Store {
       final benchmarkImageDataFile = File(
         path.join(folder, benchmarkDataFolder, IMAGE_DATA_FILE_NAME),
       );
-      final readData = jsonDecode(benchmarkImageDataFile.readAsStringSync());
-      benchmarkImageData = readData == null
-          ? null
-          : BenchmarkImageData.fromJson(readData);
+      if (benchmarkImageDataFile.existsSync()) {
+        final readData = jsonDecode(benchmarkImageDataFile.readAsStringSync());
+        benchmarkImageData = readData == null
+            ? null
+            : BenchmarkImageData.fromJson(readData);
+      } else {
+        benchmarkImageData = null;
+      }
     }
     benchmarkImageDataOnLastStore = null;
 
@@ -173,7 +180,9 @@ abstract class _ProjectStore with Store {
         benchmarkDataFolder: null,
       );
       benchmarkImageData = null;
-      Directory(oldBenchmarkDataFolder).delete(recursive: true);
+      Directory(
+        path.join(projectFolder, oldBenchmarkDataFolder),
+      ).delete(recursive: true);
     }
     final cmd = img.Command()
       ..decodeImageFile(file.path)
@@ -229,6 +238,24 @@ abstract class _ProjectStore with Store {
   }
 
   @action
+  Future<void> closeProject() async {
+    _unloadProject();
+
+    await prefs.remove(PROJECT_FOLDER_PREFERENCE);
+  }
+
+  @action
+  void _unloadProject() {
+    projectDataOnLastStore = null;
+    imagesOnLastStore.clear();
+    projectFolder = null;
+    projectData = null;
+    benchmarkImageData = null;
+    benchmarkImageDataOnLastStore = null;
+    images.clear();
+  }
+
+  @action
   void setBenchmarkImageDetectionThreshold(double newVal) {
     var data = benchmarkImageData;
     if (data == null) {
@@ -260,6 +287,16 @@ abstract class _ProjectStore with Store {
     );
   }
 
+  @action
+  void removeImage(String imageFolderName) {
+    final imageDataStore = images.remove(imageFolderName);
+    final projectFolder = this.projectFolder;
+    if (projectFolder == null || imageDataStore == null) return;
+    Directory(
+      path.join(projectFolder, imageFolderName),
+    ).delete(recursive: true);
+  }
+
   @computed
   String? get benchmarkImagePath {
     final projectFolder = this.projectFolder;
@@ -267,18 +304,4 @@ abstract class _ProjectStore with Store {
     if (projectFolder == null || benchmarkDataFolder == null) return null;
     return path.join(projectFolder, benchmarkDataFolder, IMAGE_FILE_NAME);
   }
-
-  // @ComputedMethod(keepAlive: true)
-  // ImageData? get benchmarkImageData {
-  //   final projectFolder = this.projectFolder;
-  //   final benchmarkDataFolder = projectData?.benchmarkDataFolder;
-  //   if (projectFolder == null || benchmarkDataFolder == null) return null;
-  //   return ImageData.fromJson(
-  //     jsonDecode(
-  //       File(
-  //         path.join(projectFolder, benchmarkDataFolder, IMAGE_DATA_FILE_NAME),
-  //       ).readAsStringSync(),
-  //     ),
-  //   );
-  // }
 }

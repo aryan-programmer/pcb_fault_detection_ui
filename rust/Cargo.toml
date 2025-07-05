@@ -19,6 +19,8 @@ tracing = "0.1.41"
 rayon = "1.10.0"
 num = "0.4.3"
 num-traits = "0.2.19"
+itertools = "0.14.0"
+bit-set = "0.8.0"
 
 [profile.dev]
 rpath = true
