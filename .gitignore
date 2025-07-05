@@ -52,3 +52,4 @@ app.*.map.json
 /lib/src/bincode
 /lib/src/serde
 /lib/src/bindings
+/release_builds
