@@ -8,7 +8,7 @@ part 'auto_slicing.freezed.dart';
 part 'auto_slicing.g.dart';
 
 @freezed
-abstract class ModelInferenceParameters with _$ModelInferenceParameters {
+sealed class ModelInferenceParameters with _$ModelInferenceParameters {
   factory ModelInferenceParameters({
     required bool keepOriginal,
     required List<SliceInputParams> sliceOptions,

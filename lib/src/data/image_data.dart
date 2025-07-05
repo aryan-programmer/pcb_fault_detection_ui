@@ -7,7 +7,7 @@ part 'image_data.freezed.dart';
 part 'image_data.g.dart';
 
 @freezed
-abstract class ImageData with _$ImageData {
+sealed class ImageData with _$ImageData {
   ImageData._();
 
   factory ImageData({
@@ -39,7 +39,7 @@ abstract class ImageData with _$ImageData {
 }
 
 @freezed
-abstract class BenchmarkImageData with _$BenchmarkImageData {
+sealed class BenchmarkImageData with _$BenchmarkImageData {
   const BenchmarkImageData._();
 
   factory BenchmarkImageData({

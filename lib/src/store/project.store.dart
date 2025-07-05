@@ -27,7 +27,7 @@ class ProjectStore extends _ProjectStore with _$ProjectStore {
   }
 }
 
-abstract class _ProjectStore with Store {
+sealed class _ProjectStore with Store {
   static final SharedPreferencesAsync prefs = SharedPreferencesAsync();
 
   @observable

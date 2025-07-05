@@ -26,6 +26,14 @@ mixin _$ImageDataStore on _ImageDataStore, Store {
     () => super.imagePath,
     name: '_ImageDataStore.imagePath',
   )).value;
+  Computed<ImageStatusTileData>? _$statusTileDataComputed;
+
+  @override
+  ImageStatusTileData get statusTileData =>
+      (_$statusTileDataComputed ??= Computed<ImageStatusTileData>(
+        () => super.statusTileData,
+        name: '_ImageDataStore.statusTileData',
+      )).value;
 
   late final _$imageDataAtom = Atom(
     name: '_ImageDataStore.imageData',
@@ -141,7 +149,8 @@ mixin _$ImageDataStore on _ImageDataStore, Store {
     return '''
 imageData: ${imageData},
 nonOverlappingComponents: ${nonOverlappingComponents},
-imagePath: ${imagePath}
+imagePath: ${imagePath},
+statusTileData: ${statusTileData}
     ''';
   }
 }

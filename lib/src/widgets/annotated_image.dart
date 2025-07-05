@@ -34,7 +34,7 @@ class AnnotatedImage extends StatelessWidget {
     this.onRemoveBlue,
     double? minBoxWidth,
     double? maxBoxWidth,
-  }) : minBoxWidth = minBoxWidth ?? 1.5,
+  }) : minBoxWidth = minBoxWidth ?? 2,
        maxBoxWidth = maxBoxWidth ?? 6 {
     boxWidthDiff = this.maxBoxWidth - this.minBoxWidth;
   }
@@ -99,7 +99,7 @@ class AnnotatedImage extends StatelessWidget {
     final padding = width;
     return [
       Positioned(
-        key: ValueKey((imagePath, color, box)),
+        key: ValueKey((#annotatedImageBoundingBoxPositioned, imagePath, color, box)),
         left: bx - padding,
         top: by - padding,
         width: bw + padding * 2,

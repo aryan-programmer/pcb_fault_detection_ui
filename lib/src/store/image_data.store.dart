@@ -1,6 +1,7 @@
 import 'package:mobx/mobx.dart';
 import 'package:path/path.dart' as path;
 import 'package:pcb_fault_detection_ui/src/data/image_data.dart';
+import 'package:pcb_fault_detection_ui/src/data/image_status_tile_data.dart';
 import 'package:pcb_fault_detection_ui/src/rust/api/utils.dart';
 import 'package:pcb_fault_detection_ui/src/store/project.store.dart';
 import 'package:pcb_fault_detection_ui/src/utils/components.dart';
@@ -15,7 +16,7 @@ class ImageDataStore extends _ImageDataStore with _$ImageDataStore {
   });
 }
 
-abstract class _ImageDataStore with Store {
+sealed class _ImageDataStore with Store {
   @observable
   ImageData imageData;
 
@@ -52,6 +53,60 @@ abstract class _ImageDataStore with Store {
     final projectFolder = parent.projectFolder;
     if (projectFolder == null) return null;
     return path.join(projectFolder, folderName, IMAGE_FILE_NAME);
+  }
+
+  @computed
+  ImageStatusTileData get statusTileData {
+    if (imageData.tracksOnly) {
+      if (imageData.trackDefects.isEmpty) {
+        return ImageStatusTileData(
+          status: ImageStatus.Unchecked,
+          statusString: "Please run inference on this image.",
+        );
+      }
+      final numTrackDefects = imageData.trackDefects
+          .where((v) => v.confidence >= imageData.trackDefectDetectionThreshold)
+          .length;
+      if (numTrackDefects == 0) {
+        return ImageStatusTileData(
+          status: ImageStatus.Ok,
+          statusString: "No track defects found.",
+        );
+      } else {
+        return ImageStatusTileData(
+          status: ImageStatus.Faulty,
+          statusString: "Track defects: $numTrackDefects",
+        );
+      }
+    } else {
+      if (imageData.components.isEmpty) {
+        return ImageStatusTileData(
+          status: ImageStatus.Unchecked,
+          statusString: "Please run inference on this image.",
+        );
+      }
+      if (parent.benchmarkImageData?.components.isEmpty ?? true) {
+        return ImageStatusTileData(
+          status: ImageStatus.Unchecked,
+          statusString: "Please run inference on the benchmark image.",
+        );
+      }
+      int numMissingComponents =
+          nonOverlappingComponents.missingComponents.length;
+      int numExtraComponents = nonOverlappingComponents.extraComponents.length;
+      if (numMissingComponents == 0 && numExtraComponents == 0) {
+        return ImageStatusTileData(
+          status: ImageStatus.Ok,
+          statusString: "No component defects found.",
+        );
+      } else {
+        return ImageStatusTileData(
+          status: ImageStatus.Faulty,
+          statusString:
+              "Missing: $numMissingComponents, Extra: $numExtraComponents",
+        );
+      }
+    }
   }
 
   @action

@@ -1,9 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:mobx/mobx.dart';
 import 'package:pcb_fault_detection_ui/src/data/component_classes.dart';
+import 'package:pcb_fault_detection_ui/src/data/image_status_tile_data.dart';
 import 'package:pcb_fault_detection_ui/src/models/pcb_components_model.dart';
 import 'package:pcb_fault_detection_ui/src/models/track_defects_model.dart';
 import 'package:pcb_fault_detection_ui/src/rust/api/utils.dart';
@@ -15,19 +18,30 @@ import 'package:provider/provider.dart';
 
 class PcbCardListNavTile extends StatelessWidget {
   final String name;
+  final ImageStatusTileData status;
 
-  const PcbCardListNavTile({super.key, required this.name});
+  const PcbCardListNavTile({
+    super.key,
+    required this.name,
+    required this.status,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final (trailingIcon, tileColor) = status.status.iconDataAndColor;
+
     return ListTile(
       title: Text(name),
+      subtitle: Text(status.statusString),
+      isThreeLine: true,
+      tileColor: tileColor,
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
         onPressed: () {
           Navigator.of(context).pop();
         },
       ),
+      trailing: Icon(trailingIcon),
     );
   }
 }
@@ -71,6 +85,21 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
   bool loading = false;
 
   DisplayMode displayMode = DisplayMode.nonOverlappingComponents;
+
+  final TextEditingController thresholdTextController = TextEditingController(
+    text: "30",
+  );
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    thresholdTextController.dispose();
+    super.dispose();
+  }
 
   Future<void> runInferenceForComponents(PcbComponentsModel model) async {
     final res = await model.runInference(widget.imagePath);
@@ -124,6 +153,16 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
         });
   }
 
+  void onThresholdInputChange(bool isTracksMode) {
+    final intV = int.tryParse(thresholdTextController.text);
+    if (intV != null) {
+      widget.imageDataStore.setTrackDefectDetectionThreshold(
+        intV.toDouble() / 100,
+      );
+      widget.imageDataStore.setBenchmarkOverlapThreshold(intV.toDouble() / 100);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     PcbComponentsModel? componentsModel = Provider.of<PcbComponentsModel?>(
@@ -174,138 +213,165 @@ class _PcbAccordionPanelState extends State<PcbAccordionPanel> {
           maxBoxWidth = 7;
       }
     }
-    final resultCard = Card(
-      elevation: 3,
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          PcbCardListNavTile(name: widget.imageFolderName),
-          Expanded(
-            child: ResizeableAnnotatedImage(
-              maxScale: 5,
-              minScale: 0.25,
-              imagePath: widget.imagePath,
-              boxesRed: boxesRed,
-              boxesBlue: boxesBlue,
-              imageWidth: widget.imageDataStore.imageData.imageWidth,
-              imageHeight: widget.imageDataStore.imageData.imageHeight,
-              thresholdRed: isTracksMode
-                  ? widget
-                        .imageDataStore
-                        .imageData
-                        .trackDefectDetectionThreshold
-                  : (store.benchmarkImageData?.componentDetectionThreshold ??
-                        1),
-              thresholdBlue:
-                  store.benchmarkImageData?.componentDetectionThreshold ?? 1,
-              intToComponent: isTracksMode
-                  ? TrackDefectClasses.INT_TO_COMPONENT
-                  : ComponentClass.INT_TO_COMPONENT,
-              onRemoveRed: widget.imageDataStore.removeComponent,
-              onRemoveBlue: store.removeBenchmarkImageComponent,
-              minBoxWidth: minBoxWidth,
-              maxBoxWidth: maxBoxWidth,
+    final resultCard = ReactionBuilder(
+      builder: (context) => reaction(
+        fireImmediately: true,
+        (_) => (
+          widget.imageDataStore.imageData.tracksOnly,
+          widget.imageDataStore.imageData.trackDefectDetectionThreshold,
+          widget.imageDataStore.imageData.benchmarkOverlapThreshold,
+        ),
+        (vs) {
+          final (isTracksMode, trackThesh, overlapThesh) = vs;
+          final text = ((isTracksMode ? trackThesh : overlapThesh) * 100)
+              .round()
+              .toString();
+          thresholdTextController.value = TextEditingValue(
+            text: text,
+            selection: TextSelection.fromPosition(
+              TextPosition(offset: text.length),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SwitchListTile(
-                  value: isTracksMode,
-                  onChanged: widget.imageDataStore.setIsTracksOnly,
-                  title: Text("Is this a PCB track image?"),
-                  visualDensity: VisualDensity.compact,
-                ),
-                Text(
-                  isTracksMode
-                      ? "Track Defect Threshold:"
-                      : "Benchmark Overlap Threshold:",
-                  textAlign: TextAlign.start,
-                ),
-                isTracksMode
-                    ? Slider(
-                        label:
-                            "${(widget.imageDataStore.imageData.trackDefectDetectionThreshold * 100).round()}%",
-                        min: 0,
-                        max: 1,
-                        divisions: 100,
-                        value: widget
-                            .imageDataStore
-                            .imageData
-                            .trackDefectDetectionThreshold,
-                        onChanged: widget
-                            .imageDataStore
-                            .setTrackDefectDetectionThreshold,
-                        year2023: false,
-                      )
-                    : Slider(
-                        label:
-                            "${(widget.imageDataStore.imageData.benchmarkOverlapThreshold * 100).round()}%",
-                        min: 0,
-                        max: 1,
-                        divisions: 100,
-                        value: widget
-                            .imageDataStore
-                            .imageData
-                            .benchmarkOverlapThreshold,
-                        onChanged:
-                            widget.imageDataStore.setBenchmarkOverlapThreshold,
-                        year2023: false,
-                      ),
-                OverflowBar(
-                  alignment: isTracksMode
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (!isTracksMode)
-                      DropdownButton<DisplayMode>(
-                        value: displayMode,
-                        icon: const Icon(Icons.arrow_downward),
-                        underline: Container(
-                          height: 2,
-                          color: Colors.deepPurpleAccent,
+          );
+        },
+      ),
+      child: Card(
+        elevation: 3,
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PcbCardListNavTile(
+              name: widget.imageFolderName,
+              status: widget.imageDataStore.statusTileData,
+            ),
+            Expanded(
+              child: ResizeableAnnotatedImage(
+                maxScale: 5,
+                minScale: 0.25,
+                imagePath: widget.imagePath,
+                boxesRed: boxesRed,
+                boxesBlue: boxesBlue,
+                imageWidth: widget.imageDataStore.imageData.imageWidth,
+                imageHeight: widget.imageDataStore.imageData.imageHeight,
+                thresholdRed: isTracksMode
+                    ? widget
+                          .imageDataStore
+                          .imageData
+                          .trackDefectDetectionThreshold
+                    : (store.benchmarkImageData?.componentDetectionThreshold ??
+                          1),
+                thresholdBlue:
+                    store.benchmarkImageData?.componentDetectionThreshold ?? 1,
+                intToComponent: isTracksMode
+                    ? TrackDefectClasses.INT_TO_COMPONENT
+                    : ComponentClass.INT_TO_COMPONENT,
+                onRemoveRed: widget.imageDataStore.removeComponent,
+                onRemoveBlue: store.removeBenchmarkImageComponent,
+                minBoxWidth: minBoxWidth,
+                maxBoxWidth: maxBoxWidth,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SwitchListTile(
+                          value: isTracksMode,
+                          onChanged: widget.imageDataStore.setIsTracksOnly,
+                          title: Text("Is this a PCB track image?"),
+                          visualDensity: VisualDensity.compact,
                         ),
-                        onChanged: (DisplayMode? value) {
-                          setState(() {
-                            displayMode = value!;
-                          });
-                        },
-                        items: DisplayMode.values
-                            .map<DropdownMenuItem<DisplayMode>>((
-                              DisplayMode value,
-                            ) {
-                              return DropdownMenuItem<DisplayMode>(
-                                value: value,
-                                child: Text(value.displayString()),
-                              );
-                            })
-                            .toList(),
                       ),
-                    FilledButton.tonal(
-                      onPressed: isTracksMode
-                          ? (tracksModel != null
-                                ? () => onRunInferenceForTrackDefects(
-                                    context,
-                                    tracksModel,
-                                  )
-                                : null)
-                          : (componentsModel != null
-                                ? () => onRunInferenceForComponents(
-                                    context,
-                                    componentsModel,
-                                  )
-                                : null),
-                      child: Text("Re-run inference"),
-                    ),
-                  ],
-                ),
-              ],
+                      Expanded(
+                        child: Focus(
+                          onFocusChange: (hasFocus) {
+                            if (!hasFocus) {
+                              onThresholdInputChange(isTracksMode);
+                            }
+                          },
+                          child: TextField(
+                            controller: thresholdTextController,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp("^(([0-9]?[0-9])|100)\$"),
+                              ),
+                              FilteringTextInputFormatter.digitsOnly,
+                              FilteringTextInputFormatter.singleLineFormatter,
+                            ],
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: false,
+                            ),
+                            decoration: InputDecoration(
+                              suffixIcon: Icon(Icons.percent),
+                              labelText: isTracksMode
+                                  ? "Track Defect Threshold:"
+                                  : "Benchmark Overlap Threshold:",
+                              filled: true,
+                            ),
+                            onSubmitted: (_) =>
+                                onThresholdInputChange(isTracksMode),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  OverflowBar(
+                    alignment: isTracksMode
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (!isTracksMode)
+                        DropdownButton<DisplayMode>(
+                          isDense: true,
+                          value: displayMode,
+                          icon: const Icon(Icons.arrow_downward),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.deepPurpleAccent,
+                          ),
+                          onChanged: (DisplayMode? value) {
+                            setState(() {
+                              displayMode = value!;
+                            });
+                          },
+                          items: DisplayMode.values
+                              .map<DropdownMenuItem<DisplayMode>>((
+                                DisplayMode value,
+                              ) {
+                                return DropdownMenuItem<DisplayMode>(
+                                  value: value,
+                                  child: Text(value.displayString()),
+                                );
+                              })
+                              .toList(),
+                        ),
+                      FilledButton.tonal(
+                        onPressed: isTracksMode
+                            ? (tracksModel != null
+                                  ? () => onRunInferenceForTrackDefects(
+                                      context,
+                                      tracksModel,
+                                    )
+                                  : null)
+                            : (componentsModel != null
+                                  ? () => onRunInferenceForComponents(
+                                      context,
+                                      componentsModel,
+                                    )
+                                  : null),
+                        child: Text("Re-run inference"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
     return Stack(

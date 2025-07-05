@@ -6,7 +6,7 @@ part 'project_data.freezed.dart';
 part 'project_data.g.dart';
 
 @freezed
-abstract class ProjectData with _$ProjectData {
+sealed class ProjectData with _$ProjectData {
   factory ProjectData({String? benchmarkDataFolder}) = _ProjectData;
 
   factory ProjectData.fromJson(Map<String, dynamic> json) =>

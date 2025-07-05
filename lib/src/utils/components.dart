@@ -40,10 +40,6 @@ NonOverlappingComponentsResult __getNonOverlappingComponents({
       continue;
     }
     for (YoloEntityOutput test in testComponents) {
-      if (test.confidence <= benchmarkComponentsDetectionThreshold) {
-        benchmarkComponentsSet.remove(benchmark);
-        continue;
-      }
       if (benchmark.boundingBox.iou(box2: test.boundingBox) >=
           benchmarkOverlapThreshold) {
         benchmarkComponentsSet.remove(benchmark);
@@ -60,17 +56,17 @@ NonOverlappingComponentsResult __getNonOverlappingComponents({
 final _getNonOverlappingComponents = memo5(
   (
     List<YoloEntityOutput> benchmarkComponents,
-    double benchmarkComponentsDetectionThreshold,
+    int benchmarkComponentsDetectionThreshold,
     List<YoloEntityOutput> testComponents,
-    double testComponentsDetectionThreshold,
-    double benchmarkOverlapThreshold,
+    int testComponentsDetectionThreshold,
+    int benchmarkOverlapThreshold,
   ) => __getNonOverlappingComponents(
     benchmarkComponents: benchmarkComponents,
     benchmarkComponentsDetectionThreshold:
-        benchmarkComponentsDetectionThreshold,
+        benchmarkComponentsDetectionThreshold / 100,
     testComponents: testComponents,
-    testComponentsDetectionThreshold: testComponentsDetectionThreshold,
-    benchmarkOverlapThreshold: benchmarkOverlapThreshold,
+    testComponentsDetectionThreshold: testComponentsDetectionThreshold / 100,
+    benchmarkOverlapThreshold: benchmarkOverlapThreshold / 100,
   ),
 );
 
@@ -82,8 +78,8 @@ NonOverlappingComponentsResult getNonOverlappingComponents({
   required double benchmarkOverlapThreshold,
 }) => _getNonOverlappingComponents(
   benchmarkComponents,
-  benchmarkComponentsDetectionThreshold,
+  (benchmarkComponentsDetectionThreshold * 100).round(),
   testComponents,
-  testComponentsDetectionThreshold,
-  benchmarkOverlapThreshold,
+  (testComponentsDetectionThreshold * 100).round(),
+  (benchmarkOverlapThreshold * 100).round(),
 );

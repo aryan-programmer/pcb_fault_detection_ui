@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'package:path/path.dart' as path;
 import 'package:pcb_fault_detection_ui/src/data/project_data.dart';
+import 'package:pcb_fault_detection_ui/src/store/image_data.store.dart';
 import 'package:pcb_fault_detection_ui/src/store/project.store.dart';
 import 'package:pcb_fault_detection_ui/src/widgets/benchmark_accordion_panel.dart';
 import 'package:pcb_fault_detection_ui/src/widgets/pcb_accordion_panel.dart';
@@ -21,22 +22,25 @@ class _ProjectViewState extends State<ProjectView> {
     final store = Provider.of<ProjectStore>(context);
     if (store.projectFolder == null) {
       return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          OverflowBar(
-            alignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "No project opened.",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              FilledButton.tonalIcon(
-                onPressed: () => store.closeProject(),
-                label: const Text("Open"),
-                icon: const Icon(Icons.input),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: OverflowBar(
+              alignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "No project opened.",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () => store.onOpenProject(),
+                  label: const Text("Open"),
+                  icon: const Icon(Icons.input),
+                ),
+              ],
+            ),
           ),
         ],
       );
@@ -148,6 +152,8 @@ class TestCompareImageArea extends StatelessObserverWidget {
           if (name != null) {
             if (name == "main") {
               builder = (context) => TestCompareImagesList();
+            } else if (name == "main-full") {
+              builder = (context) => TestCompareImagesList(fullReport: true);
             } else {
               final uri = Uri.parse(name);
               if (uri.pathSegments.length == 2 &&
@@ -177,7 +183,8 @@ class TestCompareImageArea extends StatelessObserverWidget {
 }
 
 class TestCompareImagesList extends StatelessObserverWidget {
-  const TestCompareImagesList({super.key});
+  final bool fullReport;
+  const TestCompareImagesList({super.key, this.fullReport = false});
 
   @override
   Widget build(BuildContext context) {
@@ -187,27 +194,75 @@ class TestCompareImagesList extends StatelessObserverWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: Align(
-            alignment: Alignment.center,
-            child: FilledButton.tonal(
-              onPressed: () => store.onOpenImageFile(),
-              child: const Text("Add new image"),
-            ),
+          child: OverflowBar(
+            alignment: MainAxisAlignment.spaceAround,
+            children: [
+              FilledButton.tonal(
+                onPressed: () => store.onOpenImageFile(),
+                child: const Text("Add new image"),
+              ),
+              if (fullReport)
+                FilledButton.tonal(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Back to listing"),
+                )
+              else
+                FilledButton.tonal(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('main-full');
+                  },
+                  child: const Text("View Full Report"),
+                ),
+            ],
           ),
         ),
         for (final entry in store.images.entries)
-          ListTile(
-            title: Text(entry.key),
-            onTap: () {
-              Navigator.of(context).pushNamed('image/${entry.key}');
-            },
-            trailing: IconButton.filledTonal(
-              style: FilledButton.styleFrom(backgroundColor: Colors.red[100]!),
-              onPressed: () => entry.value.deleteImage(),
-              icon: const Icon(Icons.delete),
-            ),
-          ),
+          getImageNavListTile(context, entry.key, entry.value),
       ],
     );
+  }
+
+  ListTile getImageNavListTile(
+    BuildContext context,
+    String imageFolderName,
+    ImageDataStore imageDataStore,
+  ) {
+    if (fullReport) {
+      final status = imageDataStore.statusTileData;
+      final (icon, tileColor) = status.status.iconDataAndColor;
+
+      return ListTile(
+        key: ValueKey((#imageNavListTileFullReport, imageFolderName)),
+        title: Text(imageFolderName),
+        subtitle: Text(status.statusString),
+        tileColor: tileColor,
+        leading: Icon(icon),
+        onTap: () {
+          Navigator.of(context).pushNamed('image/$imageFolderName');
+        },
+        trailing: IconButton.filledTonal(
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.purpleAccent[100]!,
+          ),
+          onPressed: () => imageDataStore.deleteImage(),
+          icon: const Icon(Icons.delete),
+        ),
+      );
+    } else {
+      return ListTile(
+        key: ValueKey((#imageNavListTile, imageFolderName)),
+        title: Text(imageFolderName),
+        onTap: () {
+          Navigator.of(context).pushNamed('image/$imageFolderName');
+        },
+        trailing: IconButton.filledTonal(
+          style: FilledButton.styleFrom(backgroundColor: Colors.red[100]!),
+          onPressed: () => imageDataStore.deleteImage(),
+          icon: const Icon(Icons.delete),
+        ),
+      );
+    }
   }
 }
