@@ -4,6 +4,8 @@ This is a Flutter desktop application designed to efficiently detect defects in 
 
 It's built to assist in quality control and inspection by identifying issues in both copper tracks and soldered components.
 
+See [the report](./InternshipReport.pdf) for a comprehensive project report.
+
 ## Key Features
 
 - Intuitive Flutter GUI
